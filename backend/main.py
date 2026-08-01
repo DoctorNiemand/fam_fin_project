@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from models.user import User
+from database import Session
 
 app = FastAPI()
 
@@ -11,15 +12,12 @@ def root():
 def root():
     return sers.to_dict()
 
-sers = User(1,
-    "Sergei",
-    "sergei",
-    "123456789",
-    "Admin")
-dad = User(2,
-    "Dad",
-    "dad",
-    "987654321",
-    "Member")
+sers = User(
+    name = "Sergei",
+    login = "sergei",
+    password = "123456789",
+    role = "Admin")
 
-print(sers.__tablename__)
+session = Session()
+session.add(sers)
+session.commit()
