@@ -5,7 +5,7 @@
 Goal:
 A working application that replaces my notes/Excel for syncing finances with my dad.
 
-Features
+Features:
 
 - User login
 - User registration (or manual user creation)
@@ -18,7 +18,15 @@ Features
 - Responsive UI
 - SQLite database
 
-No
+Implementation notes:
+
+- Date format for created_at
+- currencies/roles/permissions must be enumerations
+- login unique
+- immutability of e.g. created_at
+- sender may not know where he sends the money, b
+
+No:
 
 - CSV import
 - Notifications

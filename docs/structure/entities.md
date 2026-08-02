@@ -139,6 +139,7 @@ Actually a challenge here is to decide what's relevant: the account the money's 
 - Description (just a string i guess)
 - Timestamp (date: some RTC value)
 - Source (enum/set/whatever: Manual / CSV / API)
+- Type (transfer between two members or jsut a payment)
 <!-- - Audit log (entity: auditlog) i'd say making transaction connected to an audit log is kinda wrong. better lets make audit log know over which transaction or over which workspace (2 types of audit logs here become needed) it works, and it will kinda dinamically access the relevant sources-->
 - deleted_by (entity:user)
 - deleted_at (date: some RTC value)

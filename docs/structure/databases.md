@@ -50,12 +50,13 @@
 | id | immutable |
 | workspace_id | immutable |
 | created_at | immutable |
+| type | transfer or payment |
 | deleted_by | |
 | deleted_at | |
 | description | |
 | amount | |
 | currency | |
-| benefeciary_acc | |
+| beneficiary_acc | |
 | source_acc | |
 | beneficiary_workspace_member | |
 | source_workspace_member | |
