@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Family Finance</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+
+<body>
+
+    <div id="page-content">
+
+        <main class="content">
+
+            <div class="page-header workspace-page-header">
+                <h1 id="page-workspace-name">Family</h1>
+
+                <button class="button danger" id="delete-workspace-button" type="button">
+                    Delete workspace
+                </button>
+            </div>
+
+
+            <!-- Debts -->
+
+            <section class="dashboard-section">
+
+                <h2>
+                    Debts
+                </h2>
+
+                <div class="debts-list" id="workspace-debts">
+                    <!-- Workspace debts will be loaded by workspace.js -->
+                </div>
+
+            </section>
+
+
+            <!-- Recent transactions -->
+
+            <section class="dashboard-section">
+
+                <div class="section-header">
+
+                    <h2>
+                        Recent transactions
+                    </h2>
+
+                    <div class="section-actions">
+
+                        <button class="button primary" id="new-transaction-button">
+                            + New transaction
+                        </button>
+
+                        <button class="button secondary">
+                            View all
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="transactions-list" id="workspace-transactions">
+                    <!-- Recent transactions will be loaded by workspace.js -->
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script src="../js/config.js"></script>
+
+    <script src="../js/transaction-state.js"></script>
+
+    <script src="../js/app-shell.js"></script>
+
+    <script src="../js/transaction-api.js"></script>
+
+    <script src="../js/transaction-render.js"></script>
+
+    <script src="../js/transaction-form.js"></script>
+
+    <script src="../js/workspace.js"></script>
+
+</body>
+
+</html>

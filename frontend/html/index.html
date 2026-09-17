@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>Family Finance</title>
+
+	<link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+	<div id="page-content">
+		<main class="content">
+
+			<div class="page-header">
+				<h1>Dashboard</h1>
+			</div>
+
+			<section class="dashboard-section">
+				<h2>Your position</h2>
+
+				<div class="balance-grid" id="user-position">
+					<div class="balance-card">
+						<div class="balance-currency">EUR</div>
+						<div class="balance-value">Loading...</div>
+					</div>
+
+					<div class="balance-card">
+						<div class="balance-currency">RUB</div>
+						<div class="balance-value">Loading...</div>
+					</div>
+
+					<div class="balance-card">
+						<div class="balance-currency">USD</div>
+						<div class="balance-value">Loading...</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="dashboard-section">
+
+				<div class="section-header">
+					<h2>Recent transactions</h2>
+
+					<div class="section-actions">
+						<button class="button primary" id="new-transaction-button">
+							+ New transaction
+						</button>
+
+						<button class="button secondary" id="view-all-transactions-button">
+							View all
+						</button>
+					</div>
+				</div>
+
+				<div class="transactions-list" id="user-transactions">
+					<p>Loading transactions...</p>
+				</div>
+
+			</section>
+
+		</main>
+	</div>
+
+	<script src="../js/config.js"></script>
+	<script src="../js/transaction-state.js"></script>
+	<script src="../js/app-shell.js"></script>
+	<script src="../js/transaction-api.js"></script>
+	<script src="../js/transaction-render.js"></script>
+	<script src="../js/transaction-form.js"></script>
+	<script src="../js/index.js"></script>
+
+</body>

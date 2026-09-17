@@ -1,0 +1,1092 @@
+/* =========================================================
+   Family Finance — Main stylesheet
+   ========================================================= */
+
+/* =========================================================
+   1. Reset / Base
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f7f7f8;
+    color: #222;
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+
+/* =========================================================
+   2. App Layout
+   ========================================================= */
+
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+
+/* =========================================================
+   3. Sidebar
+   ========================================================= */
+
+.sidebar {
+    width: 240px;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #fff;
+    border-right: 1px solid #ddd;
+}
+
+.sidebar-header {
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 20px;
+
+    border-bottom: 1px solid #ddd;
+}
+
+.logo {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.navigation {
+    padding: 12px 10px;
+}
+
+.nav-item {
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 12px;
+    margin-bottom: 3px;
+
+    border-radius: 5px;
+
+    color: #444;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.nav-item:hover {
+    background: #f0f0f1;
+}
+
+.nav-item.active {
+    background: #e9e9eb;
+    color: #111;
+    font-weight: 500;
+}
+
+.nav-icon {
+    width: 24px;
+    margin-right: 8px;
+
+    text-align: center;
+    font-size: 16px;
+}
+
+.nav-section {
+    margin: 18px 0;
+}
+
+.nav-section-title {
+    padding: 0 12px;
+    margin-bottom: 6px;
+
+    color: #888;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding: 10px;
+
+    border-top: 1px solid #ddd;
+}
+
+
+/* =========================================================
+   4. Top Bar
+   ========================================================= */
+
+.topbar {
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 28px;
+
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+.topbar-title {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.topbar-user {
+    color: #444;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.user-arrow {
+    margin-left: 5px;
+}
+
+
+/* =========================================================
+   5. Page Content
+   ========================================================= */
+
+.content {
+    flex: 1;
+
+    padding: 32px;
+
+    overflow-y: auto;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.workspace-page-header, .account-page-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.page-header h1 {
+    margin: 0;
+
+    font-size: 26px;
+    font-weight: 500;
+}
+
+.dashboard-section {
+    margin-bottom: 36px;
+}
+
+.dashboard-section h2 {
+    margin: 0 0 14px;
+
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.placeholder {
+    color: #888;
+}
+
+
+/* =========================================================
+   6. Breadcrumb
+   ========================================================= */
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-bottom: 8px;
+
+    color: #888;
+    font-size: 12px;
+}
+
+.breadcrumb a {
+    color: #666;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   7. Buttons
+   ========================================================= */
+
+.button {
+    height: 34px;
+
+    padding: 0 13px;
+
+    border-radius: 5px;
+
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.button.primary {
+    border: 1px solid #555;
+    background: #444;
+    color: #fff;
+}
+
+.button.secondary {
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #444;
+}
+
+.button:hover {
+    opacity: 0.85;
+}
+
+
+/* =========================================================
+   8. Generic Section Actions
+   ========================================================= */
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 14px;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
+.section-actions {
+    display: flex;
+    gap: 8px;
+}
+
+
+/* =========================================================
+   9. Balances
+   ========================================================= */
+
+.balance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+
+    max-width: 900px;
+}
+
+.balance-card {
+    padding: 18px 20px;
+
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.balance-currency {
+    margin-bottom: 10px;
+
+    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.balance-value {
+    font-size: 22px;
+    font-weight: 500;
+}
+
+.positive {
+    color: #247a45;
+}
+
+.negative {
+    color: #b33a3a;
+}
+
+
+/* =========================================================
+   10. Generic Transaction List
+   Used by dashboard / compact transaction views
+   ========================================================= */
+
+.transactions-list {
+    max-width: 1100px;
+
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.transaction {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    min-height: 66px;
+    padding: 10px 16px;
+
+    border-bottom: 1px solid #eee;
+
+    cursor: pointer;
+}
+
+.transaction:last-child {
+    border-bottom: none;
+}
+
+.transaction:hover {
+    background: #fafafa;
+}
+
+.transaction-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.transaction-description {
+    margin-bottom: 4px;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.transaction-meta {
+    color: #888;
+    font-size: 12px;
+}
+
+.transaction-amount {
+    width: 120px;
+
+    text-align: right;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.transaction-expand {
+    width: 25px;
+    margin-left: 12px;
+
+    color: #999;
+    font-size: 20px;
+    text-align: right;
+}
+
+
+/* Expanded transaction details */
+
+.transaction-details {
+    display: none;
+
+    width: 100%;
+    margin-top: 8px;
+    padding: 18px 40px 10px 0;
+
+    border-top: 1px solid #eee;
+}
+
+.transaction.expanded .transaction-details {
+    display: block;
+}
+
+.transaction-detail {
+    display: flex;
+    justify-content: space-between;
+
+    max-width: 500px;
+    padding: 5px 0;
+
+    font-size: 13px;
+}
+
+.transaction-detail span:first-child {
+    color: #888;
+}
+
+.transaction-actions {
+    display: flex;
+    gap: 8px;
+
+    margin-top: 14px;
+}
+
+
+/* Shared payment split */
+
+.split-section {
+    max-width: 600px;
+    margin-top: 18px;
+}
+
+.split-title {
+    margin-bottom: 8px;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.split-header,
+.split-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 100px;
+    gap: 10px;
+    align-items: center;
+}
+
+.split-header {
+    padding: 7px 0;
+
+    border-bottom: 1px solid #ddd;
+
+    color: #888;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.split-row {
+    padding: 7px 0;
+
+    border-bottom: 1px solid #eee;
+
+    font-size: 13px;
+}
+
+.split-row:last-child {
+    border-bottom: none;
+}
+
+.split-header span:not(:first-child),
+.split-row span:not(:first-child) {
+    text-align: right;
+}
+
+
+/* =========================================================
+   11. Workspace Navigation
+   ========================================================= */
+
+.workspace-nav {
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    padding: 0 32px;
+
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+.workspace-nav-item {
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+
+    color: #777;
+    text-decoration: none;
+    font-size: 13px;
+
+    border-bottom: 2px solid transparent;
+}
+
+.workspace-nav-item:hover {
+    color: #333;
+}
+
+.workspace-nav-item.active {
+    color: #333;
+    border-bottom-color: #555;
+}
+
+
+/* =========================================================
+   12. Workspace — Debts
+   ========================================================= */
+
+.debts-list {
+    max-width: 700px;
+    border-top: 1px solid #ddd;
+}
+
+.debt-row {
+    min-height: 52px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 8px 12px;
+
+    border-bottom: 1px solid #eee;
+}
+
+.debt-member {
+    flex: 1;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.debt-values {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.debt-value {
+    min-width: 100px;
+
+    color: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: right;
+}
+
+
+/* =========================================================
+   13. Workspace — Members
+   ========================================================= */
+
+.members-list {
+    max-width: 700px;
+    border-top: 1px solid #ddd;
+}
+
+.member-row {
+    min-height: 52px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 8px 12px;
+
+    border-bottom: 1px solid #eee;
+}
+
+.member-info {
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.member-name {
+    font-size: 14px;
+}
+
+.permission-badge {
+    padding: 3px 7px;
+
+    border-radius: 5px;
+
+    background: #eee;
+    color: #666;
+
+    font-size: 11px;
+}
+
+.member-debts {
+    display: grid;
+    grid-template-columns: 100px 100px 100px;
+    gap: 24px;
+    align-items: center;
+}
+
+.member-header {
+    min-height: 38px;
+
+    color: #888;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.member-header .member-debts span {
+    text-align: right;
+}
+
+
+/* =========================================================
+   14. Transactions Page
+   ========================================================= */
+
+/* Controls */
+
+.transaction-controls {
+    width: 100%;
+    max-width: 1100px;
+
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    margin-bottom: 24px;
+}
+
+.transaction-search {
+    flex: 0 0 420px;
+    width: 420px;
+}
+
+.transaction-search input {
+    display: block;
+
+    width: 100%;
+    height: 36px;
+
+    padding: 0 10px;
+
+    border: 1px solid #ccc;
+    border-radius: 4px;
+
+    background: #fff;
+    color: #222;
+    font-size: 13px;
+}
+
+.transaction-search input:focus {
+    outline: none;
+    border-color: #888;
+}
+
+.deleted-toggle {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    white-space: nowrap;
+
+    font-size: 13px;
+}
+
+.deleted-toggle input {
+    margin: 0;
+}
+
+.transaction-controls .button {
+    flex: 0 0 auto;
+}
+
+
+/* Table */
+
+.transactions-table {
+    width: 100%;
+    max-width: 1050px;
+
+    overflow: hidden;
+
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+
+/*
+   Keep header and rows on exactly the same grid.
+   Fixed columns are intentional:
+   - Date / Workspace / Type / Paid by / Amount
+     should remain visually stable.
+   - Description gets the remaining practical space.
+*/
+
+.transaction-table-header,
+.transactions-table .transaction {
+    display: grid;
+
+    grid-template-columns:
+        80px 280px 130px 140px 100px 120px 30px;
+
+    align-items: center;
+}
+
+
+/* Table header */
+
+.transaction-table-header {
+    min-height: 32px;
+    padding: 0 14px;
+
+    background: #fafafa;
+    border-bottom: 1px solid #ddd;
+}
+
+.sort-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    padding: 0;
+
+    border: none;
+    background: none;
+
+    color: #777;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+
+    text-align: left;
+    cursor: pointer;
+}
+
+.sort-button:hover {
+    color: #333;
+}
+
+
+/* Table rows */
+
+.transactions-table .transaction {
+    min-height: 66px;
+
+    padding: 12px 14px;
+
+    border-bottom: 1px solid #eee;
+}
+
+.transactions-table .transaction:last-child {
+    border-bottom: none;
+}
+
+.transactions-table .transaction:hover {
+    background: #fafafa;
+}
+
+.transaction-date,
+.transaction-workspace,
+.transaction-type,
+.transaction-paid-by {
+    color: #666;
+    font-size: 12px;
+}
+
+.transactions-table .transaction-amount {
+    width: auto;
+
+    text-align: right;
+}
+
+.transactions-table .transaction-expand {
+    width: auto;
+    margin-left: 0;
+
+    text-align: center;
+}
+
+
+/* Expanded table transaction */
+
+.transactions-table .transaction-details {
+    display: none;
+
+    grid-column: 1 / -1;
+
+    width: auto;
+    min-width: 0;
+
+    padding: 18px 40px 10px 0;
+    margin-top: 8px;
+
+    border-top: 1px solid #eee;
+}
+
+.transactions-table .transaction.expanded .transaction-details {
+    display: block;
+}
+
+
+/* Deleted transactions */
+
+.deleted-transaction {
+    opacity: 0.65;
+}
+
+.deleted-badge {
+    display: inline-block;
+
+    margin-left: 7px;
+    padding: 2px 6px;
+
+    border-radius: 4px;
+
+    background: #eee;
+    color: #777;
+
+    font-size: 10px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   15. Workspace / Legacy Utility Classes
+   ========================================================= */
+
+.workspace-title {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.user-menu {
+    color: #555;
+    font-size: 13px;
+}
+
+/* =========================================================
+   Workspace — Recent transactions
+   Use the same transaction layout as the Transactions page
+   ========================================================= */
+
+.transactions-list .transaction {
+    display: grid;
+
+    grid-template-columns:
+        80px 1fr 130px 140px 100px 120px 30px;
+
+    align-items: center;
+
+    min-height: 66px;
+    padding: 12px 14px;
+
+    border-bottom: 1px solid #eee;
+}
+
+.transactions-list .transaction:last-child {
+    border-bottom: none;
+}
+
+.transactions-list .transaction:hover {
+    background: #fafafa;
+}
+
+.transactions-list .transaction-amount {
+    width: auto;
+    text-align: right;
+}
+
+.transactions-list .transaction-expand {
+    width: auto;
+    margin-left: 0;
+    text-align: center;
+}
+
+.transactions-list .transaction-details {
+    display: none;
+
+    grid-column: 1 / -1;
+
+    width: auto;
+    min-width: 0;
+
+    padding: 18px 40px 10px 0;
+    margin-top: 8px;
+
+    border-top: 1px solid #eee;
+}
+
+.transactions-list .transaction.expanded .transaction-details {
+    display: block;
+}
+
+
+/* =========================================================
+   Account page
+   ========================================================= */
+
+.account-header-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+
+    padding: 28px 32px;
+    margin-bottom: 32px;
+
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.account-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.account-icon {
+    width: 56px;
+    height: 56px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f1f2f4;
+    border-radius: 10px;
+}
+
+.account-icon svg {
+    width: 30px;
+    height: 30px;
+
+    fill: none;
+    stroke: #777;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.account-header-info h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.account-meta {
+    display: flex;
+    gap: 6px;
+    color: #777;
+    font-size: 14px;
+}
+
+.account-balance {
+    text-align: right;
+}
+
+.account-balance-label {
+    display: block;
+    margin-bottom: 5px;
+
+    color: #888;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.account-balance strong {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+
+.account-content {
+    margin-top: 8px;
+}
+
+.account-tabs {
+    display: flex;
+    gap: 28px;
+
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.account-tab {
+    position: relative;
+
+    padding: 0 0 12px;
+
+    border: none;
+    background: none;
+
+    color: #777;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.account-tab.active {
+    color: #222;
+    font-weight: 500;
+}
+
+.account-tab.active::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+
+    height: 2px;
+    background: #222;
+}
+
+
+.account-details-panel {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.account-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #eee;
+}
+
+.account-detail-row:last-child {
+    border-bottom: none;
+}
+
+.account-detail-row span {
+    color: #777;
+    font-size: 14px;
+}
+
+.account-detail-row strong {
+    font-weight: 500;
+}
+
+
+.button.danger {
+    padding: 7px 12px;
+    font-size: 13px;
+    color: #696868ab;
+    border: 1px solid #c2baba;
+    background: #fff;
+}
+
+.button.danger:hover {
+    background: #fef3f2;
+}

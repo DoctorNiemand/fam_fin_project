@@ -1,28 +1,39 @@
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, Enum, Numeric
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import relationship
+from enum import Enum as PyEnum
+from sqlalchemy import DateTime
+from datetime import datetime
+from shared.currency import Currency
 
 from models.base import Base
 
+
+class TransactionType(PyEnum):
+	SHARED_PAYMENT = "shared_payment"
+	DIRECT_TRANSFER = "direct_transfer"
+	EXPENSE = "expense"
+
+
 class Transaction(Base):
 	__tablename__ = "transactions"
-
 	id: Mapped[int] = mapped_column(primary_key=True)
-	created_at: Mapped[str] = mapped_column(String(80)) # some date format
-	description: Mapped[str] = mapped_column(String(255))
-	transact_type: Mapped[str] = mapped_column(String(255)) # here lets make some enum presets like transfer to someone else directly / payment 	
-	workspace_id: Mapped[int] = mapped_column(ForeignKey("workspaces.id"))
-	deleted_by: Mapped[int] = mapped_column(ForeignKey("workspace_members.id")) # workspace_member.id
-	deleted_at: Mapped[str] = mapped_column(String(80)) # some date format 
-	amount: Mapped[float] = mapped_column() # or what shall the right number be
-	currency: Mapped[str] = mapped_column(String(50)) # here lets make some enum presets like usd / eur/ rub	
-	beneficiary_acc: Mapped[int] = mapped_column(ForeignKey("accounts.id")) # account.id
-	source_acc: Mapped[int] = mapped_column(ForeignKey("accounts.id")) # account.id
-	beneficiary_workspace_member: Mapped[int] = mapped_column(ForeignKey("workspace_members.id")) # workspace_member.id
-	source_workspace_member: Mapped[int] = mapped_column(ForeignKey("workspace_members.id")) # workspace_member.id
-	data_source: Mapped[str] = mapped_column(String(50)) # here lets make some enum presets like manual / csv / api	
+	created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+	description: Mapped[str | None] = mapped_column(String(255),nullable=True)
+	transact_type: Mapped[TransactionType] = mapped_column(Enum(TransactionType),nullable=False)
+	workspace_id: Mapped[int] = mapped_column(ForeignKey("workspaces.id"),nullable=False)
+	amount: Mapped[float] = mapped_column(Numeric(12, 2),nullable=False)
+	currency: Mapped[Currency] = mapped_column(Enum(Currency),nullable=False)
+	deleted_by: Mapped[int | None] = mapped_column(ForeignKey("workspace_members.id"),nullable=True)
+	deleted_at: Mapped[datetime | None] = mapped_column(DateTime,nullable=True)
+	beneficiary_acc: Mapped[int | None] = mapped_column(ForeignKey("accounts.id"),nullable=True)
+	source_acc: Mapped[int | None] = mapped_column(ForeignKey("accounts.id"),nullable=True)
+	data_source: Mapped[str | None] = mapped_column(String(50),nullable=True)
+	beneficiary_workspace_member: Mapped[int] = mapped_column(ForeignKey("workspace_members.id"),nullable=False)
+	source_workspace_member: Mapped[int] = mapped_column(ForeignKey("workspace_members.id"),nullable=False)
 
 
+###
 	benef_acc = relationship("Account", foreign_keys=[beneficiary_acc], back_populates = "as_beneficiary")
 	sou_acc = relationship("Account", foreign_keys=[source_acc], back_populates ="as_source")
 

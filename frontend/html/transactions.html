@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Finance</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+    <div id="page-content">
+
+        <main class="content">
+
+            <div class="breadcrumb" id="transaction-breadcrumb">
+                <a href="#">Dashboard</a>
+                <span>/</span>
+                <span>Transactions</span>
+            </div>
+
+            <div class="page-header">
+                <h1>Transactions</h1>
+            </div>
+
+            <!-- Transaction controls -->
+            <section class="transaction-controls">
+
+                <div class="transaction-search">
+                    <input
+                        type="text"
+                        id="transaction-search"
+                        placeholder="Search transactions..."
+                    >
+                </div>
+
+                <label class="deleted-toggle">
+                    <input type="checkbox">
+                    <span>Show deleted</span>
+                </label>
+
+                <button
+                    class="button primary"
+                    id="new-transaction-button"
+                >
+                    + New transaction
+                </button>
+
+            </section>
+
+
+            <section
+                class="new-transaction-form"
+                id="new-transaction-form"
+                style="display: none;"
+            >
+
+                <h2>New transaction</h2>
+
+                <div class="transaction-detail">
+
+                    <label for="new-transaction-workspace">
+                        Workspace
+                    </label>
+
+                    <select id="new-transaction-workspace">
+                        <option value="">
+                            Select workspace...
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <div class="transaction-detail">
+
+                    <label for="new-transaction-type">
+                        Type
+                    </label>
+
+                    <select id="new-transaction-type">
+                        <option value="expense">
+                            Expense
+                        </option>
+
+                        <option value="direct_transfer">
+                            Direct transfer
+                        </option>
+
+                        <option value="shared_payment">
+                            Shared payment
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <div id="new-transaction-fields"></div>
+
+
+                <div class="transaction-actions">
+
+                    <button
+                        class="button primary"
+                        type="button"
+                        id="create-transaction-button"
+                    >
+                        Create
+                    </button>
+
+                    <button
+                        class="button secondary"
+                        type="button"
+                        id="cancel-new-transaction-button"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- Transactions -->
+            <section class="dashboard-section">
+
+                <div
+                    class="transactions-table"
+                    id="transactions-table"
+                >
+
+                    <div class="transaction-table-header">
+
+                        <button
+                            class="sort-button"
+                            data-column="created_at"
+                        >
+                            Date
+                            <span>↓</span>
+                        </button>
+
+                        <button
+                            class="sort-button"
+                            data-column="description"
+                        >
+                            Description
+                            <span>↓</span>
+                        </button>
+
+                        <button
+                            class="sort-button"
+                            data-column="workspace"
+                        >
+                            Workspace
+                            <span>↓</span>
+                        </button>
+
+                        <button
+                            class="sort-button"
+                            data-column="type"
+                        >
+                            Type
+                            <span>↓</span>
+                        </button>
+
+                        <button
+                            class="sort-button"
+                            data-column="paid_by"
+                        >
+                            Paid by
+                            <span>↓</span>
+                        </button>
+
+                        <button
+                            class="sort-button"
+                            data-column="amount"
+                        >
+                            Amount
+                            <span>↓</span>
+                        </button>
+
+                        <span></span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script src="../js/config.js"></script>
+    <script src="../js/app-shell.js"></script>
+    <script src="../js/transaction-state.js"></script>
+    <script src="../js/transaction-api.js"></script>
+    <script src="../js/transaction-render.js"></script>
+    <script src="../js/transaction-form.js"></script>
+    <script src="../js/transaction.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Account</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+    <div id="page-content">
+        <main class="content">
+
+            <div class="breadcrumb">
+                <a href="index.html">Dashboard</a>
+                <span>/</span>
+                <span id="account-breadcrumb-name">Account</span>
+            </div>
+
+            <div class="page-header account-page-header">
+                <h1 id="account-name">Account</h1>
+                <button class="button danger" id="delete-account-button" type="button">
+                    Delete account
+                </button>
+            </div>
+
+            <section class="account-header-card">
+
+                <div class="account-header-main">
+
+                    <div class="account-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 9h18L12 4 3 9Z" />
+                            <path d="M5 10v8" />
+                            <path d="M9 10v8" />
+                            <path d="M15 10v8" />
+                            <path d="M19 10v8" />
+                            <path d="M3 20h18" />
+                        </svg>
+                    </div>
+
+                    <div class="account-header-info">
+
+                        <div class="account-meta">
+                            <span id="account-type">Loading...</span>
+                            <span>·</span>
+                            <span id="account-currency">Loading...</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="account-balance">
+
+                    <span class="account-balance-label">
+                        Balance
+                    </span>
+
+                    <strong id="account-value">
+                        Loading...
+                    </strong>
+
+                </div>
+
+            </section>
+
+            <section class="account-content">
+
+                <div class="account-tabs">
+
+                    <button class="account-tab active" id="account-transactions-tab" type="button">
+                        Transactions
+                    </button>
+
+                    <button class="account-tab" id="account-details-tab" type="button">
+                        Details
+                    </button>
+
+                </div>
+                <div class="account-details-panel" id="account-details-panel" hidden>
+                    <div class="account-detail-row">
+                        <span>Type</span>
+                        <strong id="account-details-type">—</strong>
+                    </div>
+
+                    <div class="account-detail-row">
+                        <span>Currency</span>
+                        <strong id="account-details-currency">—</strong>
+                    </div>
+
+                    <div class="account-detail-row">
+                        <span>Owner</span>
+                        <strong id="account-details-owner">—</strong>
+                    </div>
+                </div>
+
+                <div class="transactions-list" id="account-transactions">
+                    <p>Loading transactions...</p>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/transaction-state.js"></script>
+    <script src="../js/app-shell.js"></script>
+    <script src="../js/transaction-api.js"></script>
+    <script src="../js/transaction-render.js"></script>
+    <script src="../js/account.js"></script>
+
+</body>
+
+</html>
