@@ -34,6 +34,9 @@ class AccountUpdate(BaseModel):
     name: str
     acc_type: AccountType
 
+class MessageResponse(BaseModel):
+	message: str
+
 
 @router.post("/", response_model=AccountResponse)
 def create_account(data: AccountCreate):
@@ -165,3 +168,23 @@ def update_account(
         "owner_id": account.owner_id
     }
 
+@router.delete("/{account_id}",response_model=MessageResponse)
+def delete_account(
+    account_id: int,
+    user_id: int,
+    delete_related_transactions: bool = False
+):
+    try:
+        serv_acc.delete_account(
+            session,
+            account_id,
+            user_id,
+            delete_related_transactions
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    return {"message": "Account deleted"}

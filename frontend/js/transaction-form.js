@@ -249,6 +249,13 @@ document.addEventListener("DOMContentLoaded", () => {
         newTransactionForm.style.display = "block";
         transactionType.dispatchEvent(new Event("change"));
     });
+    
+    const newTransactionFromSidebar =
+        params.get("new_transaction") === "true";
+
+    if (newTransactionFromSidebar) {
+        newTransactionButton.click();
+    }
 
     cancelNewTransactionButton.addEventListener("click", () => {
         newTransactionForm.style.display = "none";

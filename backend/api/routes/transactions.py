@@ -76,6 +76,7 @@ class TransactionResponse(BaseModel):
 def transaction_to_response(transaction: Transaction):
     return {
         "id": transaction.id,
+        "operation_id": transaction.operation_id,
         "created_at": transaction.created_at,
 
         "type": transaction.transact_type.value,

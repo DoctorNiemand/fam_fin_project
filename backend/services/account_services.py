@@ -4,11 +4,12 @@ from datetime import datetime
 
 from models.workspace import Workspace
 from models.workspace_member import WorkspaceMember
-from models.user import User
+from models.user import User, Role
 from models.account import Account, AccountType
 from shared.currency import Currency
 
 import services.workspace_member_services as wms
+import services.user_services as serv_usr
 
 def to_currency(value: str) -> Currency:
 	return {
@@ -106,3 +107,28 @@ def get_transactions(
 
 	return transactions
 
+
+def delete_account(session: Session, account_id: int, user_id: int, delete_related_transactions:bool  = False):
+	account = get_account(session, account_id)
+	if account is None:
+		raise ValueError("Trying to delete non-existent account")
+
+	requester = serv_usr.get_user(session,user_id)
+	if requester is None:
+		raise ValueError("Cannot find the user")
+	if not (requester.role == Role.ADMIN or requester.id == account.owner.id):
+		raise ValueError(
+			"Only admins or account owners can delete the account."
+		)
+
+	account.active = False
+
+	now = datetime.now()
+
+	if delete_related_transactions:
+		for transaction in account.get_transactions():
+			if transaction.deleted_at is None:
+				transaction.deleted_at = now
+				transaction.deleted_by = requester.id
+
+	session.commit()

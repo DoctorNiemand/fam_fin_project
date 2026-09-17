@@ -92,6 +92,8 @@ def shared_payment(
 
 		trans_list.append(transaction)
 		session.add(transaction)
+	for trans in trans_list:
+		trans.operation_id = trans_list[0].operation_id
 
 	session.commit()
 
@@ -159,14 +161,13 @@ def direct_transfer(
 							  source_acc=payer_acc_id,
 							  created_at=datetime.now()
 							  )
+	transaction.operation_id = transaction.id
 	session.add(transaction)
 	session.commit()
 
 	return transaction
 
 # for own fin only -> no workspace_member id needed, always 1
-
-
 def expense(
 		session: Session,
 		workspace_id: int,
@@ -190,13 +191,15 @@ def expense(
 	)
 
 
+
+
+
 def get_transaction(session: Session, transaction_id: int):
 	trans = session.get(Transaction, transaction_id)
 	if trans is None:
 		raise ValueError("Transaction not found.")
 
 	return trans
-
 
 def delete(session: Session, transaction_id: int, user_id: int):
 	trans = get_transaction(session, transaction_id)
@@ -221,7 +224,6 @@ def delete(session: Session, transaction_id: int, user_id: int):
 	trans.deleted_by = wsm.id
 
 	session.commit()
-
 
 def restore(session: Session, transaction_id: int, user_id: int):
 	trans = get_transaction(session, transaction_id)
@@ -254,7 +256,6 @@ def restore(session: Session, transaction_id: int, user_id: int):
 	trans.deleted_by = None
 
 	session.commit()
-
 
 def update_transaction(
 	session: Session,

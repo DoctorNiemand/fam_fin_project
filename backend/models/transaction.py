@@ -18,6 +18,7 @@ class TransactionType(PyEnum):
 class Transaction(Base):
 	__tablename__ = "transactions"
 	id: Mapped[int] = mapped_column(primary_key=True)
+	operation_id: Mapped[int | None] = mapped_column(nullable=True) # "layer above" the transaction id, e.g. for proper handling of shared
 	created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 	description: Mapped[str | None] = mapped_column(String(255),nullable=True)
 	transact_type: Mapped[TransactionType] = mapped_column(Enum(TransactionType),nullable=False)

@@ -438,8 +438,15 @@ function setupWorkspaceNavigation() {
         document.getElementById("add-transaction-link");
 
     if (addTransactionLink) {
-        addTransactionLink.href =
-            "transactions.html?new_transaction=true";
+        const workspaceId = getWorkspaceId();
+
+        if (workspaceId) {
+            addTransactionLink.href =
+                `transactions.html?workspace_id=${workspaceId}&new_transaction=true`;
+        } else {
+            addTransactionLink.href =
+                "transactions.html?new_transaction=true";
+        }
     }
 
     const currentPage =

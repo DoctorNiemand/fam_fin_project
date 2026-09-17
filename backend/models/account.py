@@ -25,7 +25,7 @@ class Account(Base):
 	currency: Mapped[Currency] = mapped_column(
                                         Enum(Currency))
 	owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-	#active: Mapped[bool] = mapped_column(default=True, nullable=False)
+	active: Mapped[bool] = mapped_column(default=True, nullable=False)
 
 
 
