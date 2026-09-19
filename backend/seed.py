@@ -6,6 +6,8 @@ from models.workspace import Workspace
 from models.workspace_member import WorkspaceMember, Permission
 
 import services.transaction_services as serv_tr
+import services.workspace_services as serv_ws
+
 
 session = Session()
 
@@ -54,7 +56,14 @@ mom = User(
     created_at=datetime.now()
 )
 
-session.add_all([sers, dad, anya, andrea, mom])
+session.add_all([
+    sers,
+    dad,
+    anya,
+    andrea,
+    mom
+])
+
 session.flush()
 
 
@@ -80,7 +89,12 @@ money_transfer = Workspace(
     created_at=datetime.now()
 )
 
-session.add_all([us_trip, italy_trip, money_transfer])
+session.add_all([
+    us_trip,
+    italy_trip,
+    money_transfer
+])
+
 session.flush()
 
 
@@ -109,7 +123,12 @@ dad_us = WorkspaceMember(
     permission=Permission.READ
 )
 
-session.add_all([sers_us, anya_us, dad_us])
+session.add_all([
+    sers_us,
+    anya_us,
+    dad_us
+])
+
 session.flush()
 
 
@@ -151,6 +170,7 @@ session.add_all([
     dad_italy,
     anya_italy
 ])
+
 session.flush()
 
 
@@ -172,13 +192,18 @@ dad_transfer = WorkspaceMember(
     permission=Permission.READ
 )
 
-session.add_all([sers_transfer, dad_transfer])
+session.add_all([
+    sers_transfer,
+    dad_transfer
+])
+
 session.flush()
 
 
 # =========================
 # TRANSACTIONS
 # =========================
+
 
 # ---------- US TRIP ----------
 
@@ -205,6 +230,32 @@ serv_tr.direct_transfer(
     value=120,
     currency="EUR",
     description="Hotel booking"
+)
+
+# Sers pays 100 USD, shared between all three
+serv_tr.shared_payment(
+    session=session,
+    workspace_id=us_trip.id,
+    payer_id=sers_us.id,
+    value=100,
+    currency="USD",
+    description="Lift passes",
+    recipients_list=[
+        sers_us.id,
+        anya_us.id,
+        dad_us.id
+    ]
+)
+
+# Dad pays 500 RUB for Anya
+serv_tr.direct_transfer(
+    session=session,
+    workspace_id=us_trip.id,
+    payer_member_id=dad_us.id,
+    recipient_member_id=anya_us.id,
+    value=500,
+    currency="RUB",
+    description="Equipment rental"
 )
 
 
@@ -237,6 +288,17 @@ serv_tr.direct_transfer(
     description="Train tickets"
 )
 
+# Anya pays 60 USD for Mom
+serv_tr.direct_transfer(
+    session=session,
+    workspace_id=italy_trip.id,
+    payer_member_id=anya_italy.id,
+    recipient_member_id=mom_italy.id,
+    value=60,
+    currency="USD",
+    description="Museum tickets"
+)
+
 
 # ---------- MONEY TRANSFER ----------
 
@@ -262,6 +324,24 @@ serv_tr.direct_transfer(
     description="Money transfer back"
 )
 
+
+# =========================
+# SETTLEMENT SNAPSHOT
+# =========================
+
+# Create an initial snapshot for US Trip.
+# Italy Trip and Money Transfer intentionally have no snapshot yet.
+serv_ws.get_latest_settlement_snapshot(
+    session=session,
+    workspace_id=us_trip.id,
+    user_id=sers.id,
+    recalculate=True
+)
+
+
+# =========================
+# COMMIT
+# =========================
 
 session.commit()
 

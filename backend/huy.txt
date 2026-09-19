@@ -1,4 +1,0 @@
-server01 PASS 65
-server02 FAIL 91
-server03 INVALID xxx
-server04 PASS 70
