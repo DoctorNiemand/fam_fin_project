@@ -136,7 +136,7 @@ def get_latest_settlement_snapshot(session: Session, workspace_id: int, user_id:
 	if recalculate:
 		return calculate_simplified_debts()
 
-	return session.scalars(
+	latest_snapshot = session.scalars(
 		select(Settlement)
 		.where(Settlement.workspace_id == workspace_id)
 		.order_by(
@@ -145,6 +145,8 @@ def get_latest_settlement_snapshot(session: Session, workspace_id: int, user_id:
 		)
 		.limit(1)
 	).first()
+
+	return latest_snapshot
 
 def compensate_settlement_item(session: Session, settlement_item_id: int, workspace_id: int , user_id: int):
 	# check that the user belongs to ws
