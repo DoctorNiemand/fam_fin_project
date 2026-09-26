@@ -157,26 +157,18 @@ async function loadAccountTransactions() {
 
     try {
 
-        const transactions =
-            await fetchTransactions({
+        transactions = await fetchTransactions(
+            {
                 type: "account",
                 id: accountId
-            });
+            },
+            document.querySelector(".deleted-toggle input")?.checked ?? false
+        );
 
-        container.innerHTML = "";
-
-        if (transactions.length === 0) {
-            container.innerHTML =
-                "<p>No transactions found.</p>";
-
-            return;
-        }
-
-        transactions.forEach(transaction => {
-            container.appendChild(
-                createTransactionElement(transaction)
-            );
-        });
+        renderTransactions(
+            container,
+            getVisibleTransactions()
+        );
 
     } catch (error) {
 
@@ -230,6 +222,36 @@ function setupAccountTabs() {
         transactionsPanel.hidden = true;
         detailsPanel.hidden = false;
     });
+}
+function setupAccountTransactionControls() {
+
+    const searchInput =
+        document.getElementById("transaction-search");
+
+    const deletedCheckbox =
+        document.querySelector(".deleted-toggle input");
+
+    if (searchInput) {
+        searchInput.addEventListener("input", () => {
+            const container =
+                document.getElementById("account-transactions");
+
+            renderTransactions(
+                container,
+                getVisibleTransactions()
+            );
+        });
+    }
+
+    if (deletedCheckbox) {
+        deletedCheckbox.addEventListener("change", async () => {
+            await loadAccountTransactions();
+        });
+    }
+
+    setupTransactionSorting(
+        document.getElementById("account-transactions")
+    );
 }
 
 function setupDeleteAccount() {
@@ -291,5 +313,6 @@ document.addEventListener(
         setupAccountTabs();
         await loadAccount();
         await loadAccountTransactions();
+        setupAccountTransactionControls();
     }
 );

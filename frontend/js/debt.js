@@ -79,7 +79,7 @@ async function loadUserPosition() {
 async function loadWorkspaceDebts() {
 
     const container =
-        document.getElementById("global-debts");
+        document.getElementById("workspace-debts");
 
     if (!container) {
         return;
@@ -152,13 +152,12 @@ async function loadWorkspaceDebts() {
 
                 <div class="debt-values">
                     ${values.map(value => `
-                        <span class="debt-value ${
-                            value.amount > 0
-                                ? "positive"
-                                : value.amount < 0
-                                    ? "negative"
-                                    : ""
-                        }">
+                        <span class="debt-value ${value.amount > 0
+                    ? "positive"
+                    : value.amount < 0
+                        ? "negative"
+                        : ""
+                }">
                             ${value.amount > 0 ? "+" : ""}
                             ${value.amount.toFixed(2)}
                             ${value.currency}
@@ -232,9 +231,12 @@ async function loadGlobalDebts() {
                 await response.json();
 
             const rows = debts.filter(debt =>
-                debt.eur !== 0 ||
-                debt.rub !== 0 ||
-                debt.usd !== 0
+                debt.user_id !== CURRENT_USER_ID &&
+                (
+                    debt.eur !== 0 ||
+                    debt.rub !== 0 ||
+                    debt.usd !== 0
+                )
             );
 
             if (rows.length === 0) {
@@ -292,18 +294,24 @@ async function loadGlobalDebts() {
 
                     <div class="debt-values">
                         ${values.map(value => `
-                            <span class="debt-value ${
-                                value.amount > 0
-                                    ? "positive"
-                                    : value.amount < 0
-                                        ? "negative"
-                                        : ""
-                            }">
+                            <span class="debt-value ${value.amount > 0
+                        ? "positive"
+                        : value.amount < 0
+                            ? "negative"
+                            : ""
+                    }">
                                 ${value.amount > 0 ? "+" : ""}
                                 ${value.amount.toFixed(2)}
                                 ${value.currency}
                             </span>
                         `).join("")}
+
+                        <button
+                            class="compensate-workspace-debt-button"
+                            type="button"
+                        >
+                            Compensate
+                        </button>
                     </div>
                 `;
 
@@ -335,12 +343,35 @@ async function loadGlobalDebts() {
 
 async function setupPage() {
 
-    const workspaceId =
-        getWorkspaceId();
+    const workspaceId = getWorkspaceId();
+
+    const globalDebtsSection =
+        document.querySelector(".global-debts-section");
+
+    const workspaceDebtsSection =
+        document.querySelector(".workspace-debts-section");
+
+    const simplifiedDebtsSection =
+        document
+            .getElementById("simplified-debts")
+            ?.closest(".dashboard-section");
+
 
     if (workspaceId) {
 
         // Workspace-specific debts page
+
+        if (globalDebtsSection) {
+            globalDebtsSection.style.display = "none";
+        }
+
+        if (workspaceDebtsSection) {
+            workspaceDebtsSection.hidden = false;
+        }
+
+        if (simplifiedDebtsSection) {
+            simplifiedDebtsSection.style.display = "block";
+        }
 
         const pageTitle =
             document.querySelector(".page-header h1");
@@ -348,7 +379,6 @@ async function setupPage() {
         if (pageTitle) {
 
             try {
-
                 const response = await fetch(
                     `${API_BASE_URL}/workspaces/${workspaceId}?user_id=${CURRENT_USER_ID}`
                 );
@@ -359,7 +389,7 @@ async function setupPage() {
                         await response.json();
 
                     pageTitle.textContent =
-                        `${workspace.name} — Debts`;
+                        `Debts`;
                 }
 
             } catch (error) {
@@ -386,15 +416,206 @@ async function setupPage() {
 
         // Global debts page
 
+        if (globalDebtsSection) {
+            globalDebtsSection.style.display = "block";
+        }
+
+        if (workspaceDebtsSection) {
+            workspaceDebtsSection.hidden = true;
+        }
+
+        if (simplifiedDebtsSection) {
+            simplifiedDebtsSection.style.display = "none";
+        }
+
         await loadUserPosition();
         await loadGlobalDebts();
     }
 }
 
+async function loadLatestSettlementSnapshot() {
+    const container =
+        document.getElementById("simplified-debts");
+
+    if (!container) {
+        return;
+    }
+
+    const workspaceId = getWorkspaceId();
+
+    if (!workspaceId) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/workspaces/${workspaceId}/debts/simplified?user_id=${CURRENT_USER_ID}`
+        );
+
+        const settlement = await response.json();
+
+        if (settlement === null) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    No settlement snapshot has been created yet.
+                </div>
+            `;
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to load settlement snapshot: ${response.status}`
+            );
+        }
+
+        const createdAt = new Date(settlement.created_at);
+
+        container.innerHTML = `
+            <div class="settlement-meta">
+                Calculated ${createdAt.toLocaleString()}
+            </div>
+        `;
+        if (settlement.items.length === 0) {
+            container.innerHTML += `
+                <div class="empty-state">
+                    No debts need to be settled.
+                </div>
+            `;
+            return;
+        }
+
+        settlement.items.forEach(item => {
+            const row = document.createElement("div");
+
+            row.className = "debt-row";
+
+            row.innerHTML = `
+                <div class="debt-member">
+                    ${item.debtor_name} → ${item.creditor_name}
+                </div>
+
+                <div class="debt-values">
+                    <span class="debt-value negative">
+                        ${item.amount.toFixed(2)} ${item.currency}
+                    </span>
+
+                    ${item.transaction_id
+                    ? `<span class="settlement-compensated">Compensated</span>`
+                    : `<button
+                        class="compensate-button"
+                        data-settlement-item-id="${item.id}"
+                    >
+                        Compensate
+                    </button>`
+                }
+                </div>
+            `;
+
+            container.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        container.innerHTML = `
+            <div class="empty-state">
+                Failed to load settlement snapshot.
+            </div>
+        `;
+    }
+}
+
+document.addEventListener("click", async (event) => {
+    const button = event.target.closest(".compensate-button");
+    if (!button) {
+        return;
+    }
+    const workspaceId = getWorkspaceId();
+    if (!workspaceId) {
+        return;
+    }
+
+
+    const settlementItemId = button.dataset.settlementItemId;
+
+    button.disabled = true;
+
+    try {
+        const response = await fetch(
+
+            `${API_BASE_URL}/workspaces/${workspaceId}/debts/simplified/items/${settlementItemId}/compensate?user_id=${CURRENT_USER_ID}`,
+            {
+                method: "POST"
+            }
+        );
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || "Failed to compensate settlement item.");
+        }
+
+        await loadWorkspaceDebts();
+        await loadLatestSettlementSnapshot();
+
+    } catch (error) {
+        console.error(error);
+        alert(error.message);
+        button.disabled = false;
+    }
+});
+
+async function recalculateDebts() {
+    const workspaceId = getWorkspaceId();
+
+    if (!workspaceId) {
+        return;
+    }
+    if (!confirm("Create a new settlement snapshot using the current debts?")) {
+        return;
+    }
+    const button = document.getElementById("recalculate-debts-button");
+
+    if (button) {
+        button.disabled = true;
+    }
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/workspaces/${workspaceId}/debts/simplified?user_id=${CURRENT_USER_ID}&recalculate=true`
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to recalculate debts: ${response.status}`
+            );
+        }
+
+        await loadLatestSettlementSnapshot();
+
+    } catch (error) {
+        console.error(error);
+    }
+    finally {
+        if (button) {
+            button.disabled = false;
+        }
+    }
+}
 
 document.addEventListener(
     "DOMContentLoaded",
     async () => {
         await setupPage();
+        await loadLatestSettlementSnapshot();
+
+        const recalculateButton =
+            document.getElementById("recalculate-debts-button");
+
+        if (recalculateButton) {
+            recalculateButton.addEventListener(
+                "click",
+                recalculateDebts
+            );
+        }
     }
 );

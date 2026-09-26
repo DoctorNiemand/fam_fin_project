@@ -56,6 +56,7 @@ class TransactionAccountResponse(BaseModel):
     name: str
 class TransactionResponse(BaseModel):
     id: int
+    operation_id: int | None
     created_at: datetime
     type: str
     amount: float

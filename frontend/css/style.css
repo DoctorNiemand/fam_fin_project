@@ -14,7 +14,9 @@ html,
 body {
     margin: 0;
     padding: 0;
+    width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 body {
@@ -35,14 +37,29 @@ input {
 
 .app {
     display: flex;
+    width: 100%;
     height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
 }
 
 .main {
     flex: 1;
     display: flex;
     flex-direction: column;
+
     min-width: 0;
+    min-height: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+#page-content {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 
@@ -53,9 +70,12 @@ input {
 .sidebar {
     width: 240px;
     height: 100vh;
+    flex-shrink: 0;
 
     display: flex;
     flex-direction: column;
+
+    overflow: hidden;
 
     background: #fff;
     border-right: 1px solid #ddd;
@@ -78,9 +98,13 @@ input {
 }
 
 .navigation {
-    padding: 12px 10px;
-}
+    flex: 1;
+    min-height: 0;
 
+    padding: 12px 10px;
+
+    overflow-y: auto;
+}
 .nav-item {
     height: 38px;
 
@@ -143,6 +167,7 @@ input {
 
 .topbar {
     height: 64px;
+    flex-shrink: 0;
 
     display: flex;
     align-items: center;
@@ -176,8 +201,10 @@ input {
 
 .content {
     flex: 1;
+    min-height: 0;
 
     padding: 32px;
+    padding-top: 25px;
 
     overflow-y: auto;
 }
@@ -186,7 +213,8 @@ input {
     margin-bottom: 30px;
 }
 
-.workspace-page-header, .account-page-header{
+.workspace-page-header,
+.account-page-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -284,6 +312,10 @@ input {
     margin-bottom: 14px;
 }
 
+.section-header-wide {
+    max-width: 1100px;
+}
+
 .section-header h2 {
     margin: 0;
 }
@@ -355,7 +387,7 @@ input {
     flex-wrap: wrap;
     align-items: center;
 
-    min-height: 66px;
+    min-height: 50px;
     padding: 10px 16px;
 
     border-bottom: 1px solid #eee;
@@ -404,8 +436,13 @@ input {
     color: #999;
     font-size: 20px;
     text-align: right;
+
+    transition: transform 0.15s ease;
 }
 
+.transaction.expanded .transaction-expand {
+    transform: rotate(90deg);
+}
 
 /* Expanded transaction details */
 
@@ -775,7 +812,8 @@ input {
 /* Table rows */
 
 .transactions-table .transaction {
-    min-height: 66px;
+    min-height: 50px;
+    grid-template-rows: 50px auto;
 
     padding: 12px 14px;
 
@@ -879,10 +917,12 @@ input {
 
     grid-template-columns:
         80px 1fr 130px 140px 100px 120px 30px;
+    
+    grid-template-rows: 50px auto;
 
     align-items: center;
 
-    min-height: 66px;
+    min-height: 50px;
     padding: 12px 14px;
 
     border-bottom: 1px solid #eee;
@@ -1089,4 +1129,45 @@ input {
 
 .button.danger:hover {
     background: #fef3f2;
+}
+
+.settlement-meta {
+    margin-bottom: 12px;
+    color: #c20e0eab;
+    font-size: 0.9rem;
+}
+
+.settlement-compensated {
+    color: #1dbe17ab;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+
+.nav-add-item {
+    color: #6e6d6d;
+    font-weight: 500;
+}
+
+
+
+
+
+.debts-overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.debts-overview-grid > div {
+    min-width: 0;
+}
+
+
+.compensate-workspace-debt-button {
+    margin-left: 12px;
+}
+
+.global-debts-section {
+    margin-bottom: 32px;
 }

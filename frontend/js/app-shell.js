@@ -87,18 +87,33 @@ function createAppShell() {
                         <span>Add account</span>
                     </a>
                 </div>
-                <a href="#" class="nav-item" id="debts-link-sidebar">
-                    <span class="nav-icon">⇄</span>
-                    <span>Debts</span>
-                </a>
-                <a href="#" class="nav-item" id="transactions-link-sidebar">
-                    <span class="nav-icon">↔</span>
-                    <span>Transactions</span>
-                </a>
-                <a href="#" class="nav-item nav-add-item" id="add-transaction-link">
-                    <span class="nav-icon">+</span>
-                    <span>New transaction</span>
-                </a>
+
+                 <div class="nav-section">
+                    <div class="nav-section-title">
+                        Transactions
+                    </div>
+
+                    <a href="#" class="nav-item" id="transactions-link-sidebar">
+                        <span class="nav-icon">☷</span>
+                        <span>Recent transactions</span>
+                    </a>
+
+                    <a href="#" class="nav-item nav-add-item" id="add-transaction-link">
+                        <span class="nav-icon">+</span>
+                        <span>New transaction</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">
+                        Debts
+                    </div>
+
+                    <a href="#" class="nav-item" id="debts-link-sidebar">
+                        <span class="nav-icon">⇄</span>
+                        <span>Current debts</span>
+                    </a>
+                </div>
 
             </nav>
 
@@ -175,7 +190,6 @@ function createAppShell() {
                 </a>
 
             </nav>
-
 
             <div id="app-content"></div>
 
@@ -478,6 +492,17 @@ function setupWorkspaceNavigation() {
         }
     }
 
+    const transactionsSidebarLink =
+        document.getElementById("transactions-link-sidebar");
+
+    if (transactionsSidebarLink) {
+        transactionsSidebarLink.href = "transactions.html";
+
+        if (currentPage === "transactions.html") {
+            transactionsSidebarLink.classList.add("active");
+        }
+    }
+
     const workspaceId =
         getWorkspaceId();
 
@@ -492,16 +517,38 @@ function setupWorkspaceNavigation() {
         return;
     }
 
-    const transactionsSidebarLink =
-        document.getElementById("transactions-link-sidebar");
+    const content =
+        document.querySelector("#page-content .content");
 
-    if (transactionsSidebarLink) {
-        transactionsSidebarLink.href = "transactions.html";
+    if (content) {
+        const breadcrumb =
+            document.createElement("div");
 
-        if (currentPage === "transactions.html") {
-            transactionsSidebarLink.classList.add("active");
-        }
+        breadcrumb.className = "breadcrumb";
+        breadcrumb.id = "workspace-breadcrumb";
+
+        const currentPage =
+            window.location.pathname.split("/").pop();
+
+        const pageNames = {
+            "workspace.html": "Overview",
+            "transactions.html": "Transactions",
+            "debts.html": "Debts",
+            "members.html": "Members"
+        };
+
+        breadcrumb.innerHTML = `
+            <a href="workspace.html?workspace_id=${workspaceId}">
+                ${document.getElementById("workspace-name").textContent}
+            </a>
+            <span>/</span>
+            <span>${pageNames[currentPage] || ""}</span>
+        `;
+
+        content.prepend(breadcrumb);
     }
+
+
     const overviewLink =
         document.getElementById(
             "overview-link"
@@ -702,11 +749,13 @@ document.addEventListener(
         createAppShell();
 
         setupAddWorkspace();
-        setupWorkspaceNavigation();
         setupAddAccount();
 
         await loadCurrentUser();
         await loadWorkspace();
+
+        setupWorkspaceNavigation();
+
         await loadUserWorkspaces();
         await loadUserAccounts();
 

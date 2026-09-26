@@ -84,7 +84,9 @@ async function initializeTransactionPage() {
     }
 
     await loadTransactions();
-    setupTransactionSorting();
+    setupTransactionSorting(
+        document.getElementById("transactions-table")
+    );
 
     if (openNewTransaction) {
         const newTransactionButton =

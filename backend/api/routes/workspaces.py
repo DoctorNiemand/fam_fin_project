@@ -26,6 +26,7 @@ class MemberCreate(BaseModel):
     user_id: int
     permission: Permission
 
+
 class WorkspaceMemberResponse(BaseModel):
     id: int
     user_id: int
@@ -33,21 +34,26 @@ class WorkspaceMemberResponse(BaseModel):
     permission: str
     active: bool
 
+
 class WorkspaceResponse(BaseModel):
     id: int
     name: str
     description: str
 
+
 class WorkspaceUpdate(BaseModel):
     name: str
     description: str
+
 
 class WorkspaceCreate(BaseModel):
     name: str
     description: str
 
+
 class MessageResponse(BaseModel):
     message: str
+
 
 class DebtResponse(BaseModel):
     user_id: int
@@ -56,8 +62,10 @@ class DebtResponse(BaseModel):
     eur: float
     rub: float
 
+
 class TransactionResponse(BaseModel):
     id: int
+    operation_id: int | None
     created_at: datetime
     description: str | None
     transact_type: str
@@ -68,7 +76,9 @@ class TransactionResponse(BaseModel):
     source_member_name: str
     beneficiary_member_name: str
 
+
 class SettlementItemResponse(BaseModel):
+    id: int
     debtor_wsm_id: int
     debtor_name: str
     creditor_wsm_id: int
@@ -77,11 +87,13 @@ class SettlementItemResponse(BaseModel):
     currency: str
     transaction_id: int | None
 
+
 class SettlementResponse(BaseModel):
     id: int
     workspace_id: int
     created_at: datetime
     items: list[SettlementItemResponse]
+
 
 def settlement_to_response(settlement: Settlement):
     return {
@@ -90,6 +102,7 @@ def settlement_to_response(settlement: Settlement):
         "created_at": settlement.created_at,
         "items": [
             {
+                "id": item.id,
                 "debtor_wsm_id": item.debtor_wsm_id,
                 "debtor_name": item.debtor_wsm.user.name,
                 "creditor_wsm_id": item.creditor_wsm_id,
@@ -134,6 +147,7 @@ def get_workspace_transactions(
     return [
         {
             "id": transaction.id,
+            "operation_id": transaction.operation_id,
             "created_at": transaction.created_at,
             "description": transaction.description,
             "transact_type": transaction.transact_type.value,
@@ -185,7 +199,7 @@ def get_workspace_members(
             } for member in workspace.members]
 
 
-@router.get("/{workspace_id}/debts/simplified", response_model=SettlementResponse)
+@router.get("/{workspace_id}/debts/simplified", response_model=SettlementResponse | None)
 def get_simplified_workspace_debts(
     workspace_id: int,
     user_id: int,
@@ -205,12 +219,10 @@ def get_simplified_workspace_debts(
         )
 
     if settlement is None:
-        raise HTTPException(
-            status_code=404,
-            detail="No settlement snapshot exists for this workspace."
-        )
+        return None
 
     return settlement_to_response(settlement)
+
 
 @router.get("/{workspace_id}/debts", response_model=list[DebtResponse])
 def get_workspace_debts(
@@ -287,7 +299,6 @@ def get_workspace(workspace_id: int, user_id: int):
     }
 
 
-
 @router.post("/{workspace_id}/debts/simplified/items/{settlement_item_id}/compensate", response_model=MessageResponse)
 def compensate_settlement_item(
     workspace_id: int,
@@ -308,6 +319,7 @@ def compensate_settlement_item(
         )
 
     return {"message": "Settlement item compensated"}
+
 
 @router.post("/", response_model=WorkspaceResponse)
 def create_workspace(

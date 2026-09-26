@@ -39,11 +39,47 @@
                 </div>
             </section>
 
-            <section class="dashboard-section">
-                <h2>Debts by workspace</h2>
+            <section class="dashboard-section global-debts-section">
+                <div class="debts-overview-grid">
 
-                <div id="global-debts">
+                    <div class="debts-by-person">
+                        <h2>Debts by person</h2>
+
+                        <div id="personal-debts">
+                            <div class="empty-state">
+                                Personal debt breakdown will be implemented here.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="debts-by-workspace">
+                        <h2>Debts by workspace</h2>
+
+                        <div id="global-debts">
+                            <p>Loading debts...</p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+            <section class="dashboard-section workspace-debts-section" hidden>
+                <h2>Debts</h2>
+
+                <div class="debts-list" id="workspace-debts">
                     <p>Loading debts...</p>
+                </div>
+            </section>
+            <section class="dashboard-section">
+                <div class="section-header">
+                    <h2>Simplified debts</h2>
+
+                    <button class="button primary" id="recalculate-debts-button">
+                        Recalculate
+                    </button>
+                </div>
+
+                <div id="simplified-debts">
+                    <!-- Latest settlement snapshot will be rendered here -->
                 </div>
             </section>
 

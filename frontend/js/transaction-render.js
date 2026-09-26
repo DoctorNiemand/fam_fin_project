@@ -67,7 +67,7 @@ function sortTransactions(transactions) {
     });
 }
 
-function setupTransactionSorting() {
+function setupTransactionSorting(transactionTable) {
     const sortButtons = document.querySelectorAll(".sort-button");
 
     sortButtons.forEach(button => {
@@ -88,14 +88,13 @@ function setupTransactionSorting() {
                 currentSort.direction = "asc";
             }
 
-            const transactionTable =
-                document.getElementById("transactions-table");
 
             if (transactionTable) {
                 renderTransactions(
                     transactionTable,
                     getVisibleTransactions()
                 );
+                updateSortIndicators();
             }
         });
     });
@@ -127,6 +126,100 @@ function toggleTransaction(transactionElement) {
     transactionElement.classList.toggle("expanded");
 }
 
+function groupTransactionsByOperation(transactions) {
+    const groups = new Map();
+
+    transactions.forEach(transaction => {
+        const key = transaction.operation_id ?? `transaction-${transaction.id}`;
+
+        if (!groups.has(key)) {
+            groups.set(key, []);
+        }
+
+        groups.get(key).push(transaction);
+    });
+
+    return Array.from(groups.values());
+}
+
+function sortTransactionGroups(groups) {
+    return [...groups].sort((groupA, groupB) => {
+
+        const a = groupA[0];
+        const b = groupB[0];
+
+        let valueA;
+        let valueB;
+
+        switch (currentSort.column) {
+
+            case "created_at":
+                valueA = new Date(a.created_at);
+                valueB = new Date(b.created_at);
+                break;
+
+            case "description":
+                valueA = a.description ?? "";
+                valueB = b.description ?? "";
+                break;
+
+            case "workspace":
+                valueA = a.workspace_name ?? "";
+                valueB = b.workspace_name ?? "";
+                break;
+
+            case "type":
+                valueA = a.type ?? "";
+                valueB = b.type ?? "";
+                break;
+
+            case "paid_by":
+                valueA = a.paid_by?.name ?? "";
+                valueB = b.paid_by?.name ?? "";
+                break;
+
+            case "amount":
+                valueA = groupA.reduce(
+                    (sum, transaction) =>
+                        sum + Number(transaction.amount),
+                    0
+                );
+
+                valueB = groupB.reduce(
+                    (sum, transaction) =>
+                        sum + Number(transaction.amount),
+                    0
+                );
+                break;
+
+            default:
+                return 0;
+        }
+
+        let result;
+
+        if (
+            typeof valueA === "number" &&
+            typeof valueB === "number"
+        ) {
+            result = valueA - valueB;
+        } else if (
+            valueA instanceof Date &&
+            valueB instanceof Date
+        ) {
+            result = valueA - valueB;
+        } else {
+            result = String(valueA).localeCompare(
+                String(valueB)
+            );
+        }
+
+        return currentSort.direction === "asc"
+            ? result
+            : -result;
+    });
+}
+
 function renderTransactions(transactionTable, transactions) {
     const header = transactionTable.querySelector(
         ".transaction-table-header"
@@ -138,12 +231,20 @@ function renderTransactions(transactionTable, transactions) {
         transactionTable.appendChild(header);
     }
 
-    const sortedTransactions = sortTransactions(transactions);
+    const groups = groupTransactionsByOperation(transactions);
 
-    sortedTransactions.forEach(transaction => {
-        transactionTable.appendChild(
-            createTransactionElement(transaction)
-        );
+    const sortedGroups = sortTransactionGroups(groups);
+
+    sortedGroups.forEach(group => {
+        if (group.length === 1) {
+            transactionTable.appendChild(
+                createTransactionElement(group[0])
+            );
+        } else {
+            transactionTable.appendChild(
+                createOperationElement(group)
+            );
+        }
     });
 }
 

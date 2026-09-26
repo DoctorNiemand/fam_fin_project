@@ -99,8 +99,55 @@
                     </div>
                 </div>
 
-                <div class="transactions-list" id="account-transactions">
-                    <p>Loading transactions...</p>
+                <section class="transaction-controls">
+
+                    <div class="transaction-search">
+                        <input type="text" id="transaction-search" placeholder="Search transactions...">
+                    </div>
+
+                    <label class="deleted-toggle">
+                        <input type="checkbox">
+                        <span>Show deleted</span>
+                    </label>
+
+                </section>
+
+                <div class="transactions-table" id="account-transactions">
+                    <div class="transaction-table-header">
+
+                        <button class="sort-button" data-column="created_at">
+                            Date
+                            <span>↓</span>
+                        </button>
+
+                        <button class="sort-button" data-column="description">
+                            Description
+                            <span>↓</span>
+                        </button>
+
+                        <button class="sort-button" data-column="workspace">
+                            Workspace
+                            <span>↓</span>
+                        </button>
+
+                        <button class="sort-button" data-column="type">
+                            Type
+                            <span>↓</span>
+                        </button>
+
+                        <button class="sort-button" data-column="paid_by">
+                            Paid by
+                            <span>↓</span>
+                        </button>
+
+                        <button class="sort-button" data-column="amount">
+                            Amount
+                            <span>↓</span>
+                        </button>
+
+                        <span></span>
+
+                    </div>
                 </div>
 
             </section>
