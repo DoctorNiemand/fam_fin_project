@@ -23,7 +23,6 @@ class Settlement(Base):
 
 	items = relationship("SettlementItem", back_populates="settlement")
 
-
 class SettlementItem(Base):
 	__tablename__ = "settlement_items"
 
@@ -57,7 +56,3 @@ class SettlementItem(Base):
 		"WorkspaceMember",
 		foreign_keys=[creditor_wsm_id]
 	)
-
-
-
-	

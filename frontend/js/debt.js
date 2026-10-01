@@ -213,12 +213,88 @@ async function loadGlobalDebts() {
         const workspaces =
             await workspaceResponse.json();
 
+        const personResponse = await fetch(
+            `${API_BASE_URL}/users/${CURRENT_USER_ID}/cumulative_pair_debts`
+        );
+
+        if (!personResponse.ok) {
+            throw new Error(
+                `Failed to load cumulative debts: ${personResponse.status}`
+            );
+        }
+
+        const personDebts = await personResponse.json();
+        const personalContainer =
+            document.getElementById("personal-debts");
+
+        personalContainer.innerHTML = "";
+
+        const personalRows = personDebts.filter(debt =>
+            debt.eur !== 0 ||
+            debt.rub !== 0 ||
+            debt.usd !== 0
+        );
+        personalRows.forEach(debt => {
+            const row = document.createElement("div");
+
+            row.className = "debt-row";
+
+            const values = [];
+
+            if (debt.eur !== 0) {
+                values.push({
+                    amount: debt.eur,
+                    currency: "EUR"
+                });
+            }
+
+            if (debt.rub !== 0) {
+                values.push({
+                    amount: debt.rub,
+                    currency: "RUB"
+                });
+            }
+
+            if (debt.usd !== 0) {
+                values.push({
+                    amount: debt.usd,
+                    currency: "USD"
+                });
+            }
+
+            row.innerHTML = `
+                <div class="debt-member">
+                    ${debt.name}
+                </div>
+
+                <div class="debt-values">
+                    ${values.map(value => `
+                        <span class="debt-value ${value.amount > 0
+                    ? "positive"
+                    : value.amount < 0
+                        ? "negative"
+                        : ""
+                }">
+                            ${value.amount > 0 ? "+" : ""}
+                            ${value.amount.toFixed(2)}
+                            ${value.currency}
+                        </span>
+                    `).join("")}
+                </div>
+            `;
+
+            personalContainer.appendChild(row);
+        }); if (personalRows.length === 0) {
+            personalContainer.innerHTML =
+                "<p>No outstanding debts.</p>";
+        }
+
         container.innerHTML = "";
 
         for (const workspace of workspaces) {
 
             const response = await fetch(
-                `${API_BASE_URL}/workspaces/${workspace.id}/debts?user_id=${CURRENT_USER_ID}`
+                `${API_BASE_URL}/users/${CURRENT_USER_ID}/workspace_pair_debts?workspace_id=${workspace.id}`
             );
 
             if (!response.ok) {
@@ -314,6 +390,55 @@ async function loadGlobalDebts() {
                         </button>
                     </div>
                 `;
+                const compensateButton = row.querySelector(
+                    ".compensate-workspace-debt-button"
+                );
+
+                compensateButton.addEventListener("click", async () => {
+                    const currencies = [];
+
+                    if (debt.eur !== 0) currencies.push(["EUR", debt.eur]);
+                    if (debt.usd !== 0) currencies.push(["USD", debt.usd]);
+                    if (debt.rub !== 0) currencies.push(["RUB", debt.rub]);
+
+                    if (currencies.length === 0) {
+                        return;
+                    }
+
+                    if (currencies.length > 1) {
+                        alert("This debt contains multiple currencies. Compensation currently supports one currency at a time.");
+                        return;
+                    }
+
+                    const [currency, amount] = currencies[0];
+
+                    if (!confirm(`Compensate ${Math.abs(amount)} ${currency} with ${debt.name}?`)) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(
+                            `${API_BASE_URL}/transactions/compensate` +
+                            `?workspace_id=${workspace.id}` +
+                            `&user_id=${CURRENT_USER_ID}` +
+                            `&other_member_id=${debt.workspace_member_id}` +
+                            `&amount=${amount}` +
+                            `&currency=${currency}`,
+                            {
+                                method: "POST"
+                            }
+                        );
+
+                        if (!response.ok) {
+                            throw new Error(await response.text());
+                        }
+
+                        await loadGlobalDebts();
+                    } catch (error) {
+                        console.error("Failed to compensate debt:", error);
+                        alert("Failed to compensate debt.");
+                    }
+                });
 
                 debtsList.appendChild(row);
             });

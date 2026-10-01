@@ -44,7 +44,57 @@ def get_debt(session: Session, member_id: int):
 
 	return debt_usd, debt_eur, debt_rub
 
+def get_pair_debt(session: Session, caller_member_id: int, object_member_id: int):
+	caller_member = session.get(WorkspaceMember, caller_member_id)
+	object_member = session.get(WorkspaceMember, object_member_id)
+	if not caller_member or not object_member:
+		raise ValueError("Workspace member not found.")
+	if not caller_member.workspace_id == object_member.workspace_id:
+		raise ValueError("Members do not belong to the same workspace.")
 
+	debt_usd = 0
+	debt_eur = 0
+	debt_rub = 0
+
+	if caller_member.active and object_member.active:
+		for trans in caller_member.as_source:
+			if trans.deleted_at is not None:
+				continue
+			if trans.beneficiary_workspace_member == object_member_id:
+				if trans.currency == Currency.USD:
+					debt_usd -= trans.amount
+				elif trans.currency == Currency.EUR:
+					debt_eur -= trans.amount
+				elif trans.currency == Currency.RUB:
+					debt_rub -= trans.amount
+
+		for trans in caller_member.as_beneficiary:
+			if trans.deleted_at is not None:
+				continue
+			if trans.source_workspace_member == object_member_id:
+				if trans.currency == Currency.USD:
+					debt_usd += trans.amount
+				elif trans.currency == Currency.EUR:
+					debt_eur += trans.amount
+				elif trans.currency == Currency.RUB:
+					debt_rub += trans.amount
+
+	return debt_usd, debt_eur, debt_rub
+
+def get_all_pair_debts(session: Session, caller_member_id: int):
+	caller_member = session.get(WorkspaceMember, caller_member_id)
+	if not caller_member:
+		raise ValueError("Workspace member not found.")
+
+	workspace = caller_member.workspace
+
+	members_and_debts = []
+	for member in workspace.members:
+		if member.id != caller_member_id:
+			debts = get_pair_debt(session, caller_member.id, member.id)
+			members_and_debts.append((member, debts))
+
+	return members_and_debts
 
 def get_ws_member(
 	session: Session,

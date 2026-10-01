@@ -776,7 +776,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
                 if (Math.abs(shareSum - 1) > 0.001) {
-                    alert("Recipient shares must add up to 1.00.");
+                    alert("Recipient shares must add up to 100%.");
                     return;
                 }
 

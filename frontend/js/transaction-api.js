@@ -47,7 +47,6 @@ async function fetchTransactions(context, includeDeleted = false) {
     return await response.json();
 }
 
-
 async function deleteTransaction(transactionId) {
     const response = await fetch(
         `${API_BASE_URL}/transactions/${transactionId}`,
@@ -71,7 +70,6 @@ async function deleteTransaction(transactionId) {
         );
     }
 }
-
 
 async function restoreTransaction(transactionId) {
     const response = await fetch(
@@ -97,6 +95,37 @@ async function restoreTransaction(transactionId) {
     }
 }
 
+async function deleteOperation(operationId) {
+    const response = await fetch(
+        `${API_BASE_URL}/transactions/operation/${operationId}?user_id=${CURRENT_USER_ID}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || "Failed to delete operation.");
+    }
+
+    return response.json();
+}
+
+async function restoreOperation(operationId) {
+    const response = await fetch(
+        `${API_BASE_URL}/transactions/operation/${operationId}/restore?user_id=${CURRENT_USER_ID}`,
+        {
+            method: "POST"
+        }
+    );
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || "Failed to restore operation.");
+    }
+
+    return response.json();
+}
 
 async function updateTransaction(
     transactionId,
@@ -127,7 +156,6 @@ async function updateTransaction(
 
     return await response.json().catch(() => null);
 }
-
 
 async function createTransaction(
     type,

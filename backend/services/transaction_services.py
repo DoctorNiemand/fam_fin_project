@@ -49,7 +49,7 @@ def shared_payment(
 	elif any(share < 0 for share in shares_list):
 		raise ValueError("Shares cannot be negative.")
 	elif abs(sum(shares_list) - 1) > 1e-6:
-		raise ValueError("Shares must sum to 1.")
+		raise ValueError("Shares must sum to 100%")
 
 	try:
 		workspace = serv_ws.get_workspace(
@@ -92,8 +92,9 @@ def shared_payment(
 
 		trans_list.append(transaction)
 		session.add(transaction)
+	session.flush()
 	for trans in trans_list:
-		trans.operation_id = trans_list[0].operation_id
+		trans.operation_id = trans_list[0].id
 
 	session.commit()
 
@@ -161,8 +162,9 @@ def direct_transfer(
 							  source_acc=payer_acc_id,
 							  created_at=datetime.now()
 							  )
-	transaction.operation_id = transaction.id
 	session.add(transaction)
+	session.flush()
+	transaction.operation_id = transaction.id
 	session.commit()
 
 	return transaction
@@ -200,6 +202,11 @@ def get_transaction(session: Session, transaction_id: int):
 		raise ValueError("Transaction not found.")
 
 	return trans
+
+def get_all_transactions_by_operation_id (session: Session, operation_id: int):
+	query = select(Transaction).where(Transaction.operation_id == operation_id)
+	return session.scalars(query).all()
+
 
 def delete(session: Session, transaction_id: int, user_id: int):
 	trans = get_transaction(session, transaction_id)

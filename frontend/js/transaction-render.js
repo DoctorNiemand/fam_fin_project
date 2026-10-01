@@ -220,6 +220,429 @@ function sortTransactionGroups(groups) {
     });
 }
 
+async function openTransactionEditor(element, transaction) {
+    const details =
+        element.querySelector(".transaction-details");
+
+    details.innerHTML = `
+        <div class="transaction-detail">
+            <span>Type</span>
+            <span>${transaction.type}</span>
+        </div>
+
+        <div class="transaction-detail">
+            <span>Workspace</span>
+            <span>${transaction.workspace_name}</span>
+        </div>
+
+        <div class="transaction-detail">
+            <span>Paid by</span>
+            <span>${transaction.paid_by.name}</span>
+        </div>
+
+        <div class="transaction-detail">
+            <span>Paid to</span>
+            <span>${transaction.paid_to.name}</span>
+        </div>
+
+        <div class="transaction-detail">
+            <span>Source account</span>
+
+            <select data-edit="source-account">
+                <option value="">No account</option>
+            </select>
+        </div>
+
+        <div class="transaction-detail">
+            <span>Beneficiary account</span>
+
+            <select data-edit="beneficiary-account">
+                <option value="">No account</option>
+            </select>
+        </div>
+
+        <div class="transaction-detail">
+            <span>Amount</span>
+
+            <input
+                type="number"
+                step="0.01"
+                value="${transaction.amount}"
+                data-edit="amount"
+            >
+        </div>
+
+        <div class="transaction-detail">
+            <span>Currency</span>
+
+            <select data-edit="currency">
+                <option value="EUR" ${transaction.currency === "EUR" ? "selected" : ""}>
+                    EUR
+                </option>
+
+                <option value="USD" ${transaction.currency === "USD" ? "selected" : ""}>
+                    USD
+                </option>
+
+                <option value="RUB" ${transaction.currency === "RUB" ? "selected" : ""}>
+                    RUB
+                </option>
+            </select>
+        </div>
+
+        <div class="transaction-detail">
+            <span>Description</span>
+
+            <input
+                type="text"
+                value="${transaction.description ?? ""}"
+                data-edit="description"
+            >
+        </div>
+
+        <div class="transaction-actions">
+            <button
+                class="button primary"
+                type="button"
+                data-action="save"
+                data-transaction-id="${transaction.id}"
+            >
+                Save
+            </button>
+
+            <button
+                class="button secondary"
+                type="button"
+                data-action="cancel-edit"
+                data-transaction-id="${transaction.id}"
+            >
+                Cancel
+            </button>
+        </div>
+    `;
+
+    element.classList.add("editing");
+
+    const sourceAccountSelect =
+        details.querySelector(
+            '[data-edit="source-account"]'
+        );
+
+    if (sourceAccountSelect && transaction.paid_by?.user_id) {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/accounts/user/${transaction.paid_by.user_id}`
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `Failed to load source accounts: ${response.status}`
+                );
+            }
+
+            const accounts = await response.json();
+
+            accounts.forEach(account => {
+                sourceAccountSelect.innerHTML += `
+                    <option
+                        value="${account.id}"
+                        ${transaction.source_account?.id === account.id
+                        ? "selected"
+                        : ""}
+                    >
+                        ${account.name} (${account.currency})
+                    </option>
+                `;
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const beneficiaryAccountSelect =
+        details.querySelector(
+            '[data-edit="beneficiary-account"]'
+        );
+
+    if (
+        beneficiaryAccountSelect &&
+        transaction.paid_to?.user_id
+    ) {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/accounts/user/${transaction.paid_to.user_id}`
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `Failed to load beneficiary accounts: ${response.status}`
+                );
+            }
+
+            const accounts = await response.json();
+
+            accounts.forEach(account => {
+                beneficiaryAccountSelect.innerHTML += `
+                    <option
+                        value="${account.id}"
+                        ${transaction.beneficiary_account?.id === account.id
+                        ? "selected"
+                        : ""}
+                    >
+                        ${account.name} (${account.currency})
+                    </option>
+                `;
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}
+
+function createOperationElement(transactions) {
+    const first = transactions[0];
+
+    const totalAmount = transactions.reduce(
+        (sum, transaction) =>
+            sum + Number(transaction.amount),
+        0
+    );
+
+    const element = document.createElement("div");
+
+    element.className = "transaction operation";
+
+    element.addEventListener("click", event => {
+        if (event.target.closest(
+            "input, select, textarea, button"
+        )) {
+            return;
+        }
+
+        toggleTransaction(element);
+    });
+
+    element.innerHTML = `
+        <div class="transaction-date">
+            ${formatTransactionDate(first.created_at)}
+        </div>
+
+        <div class="transaction-main">
+            <div class="transaction-description">
+                ${first.description ?? "—"}
+            </div>
+
+            <div class="transaction-meta">
+                ${formatTransactionDateTime(first.created_at)}
+            </div>
+        </div>
+
+        <div class="transaction-workspace">
+            ${first.workspace_name}
+        </div>
+
+        <div class="transaction-type">
+            ${first.type}
+        </div>
+
+        <div class="transaction-paid-by">
+            ${first.paid_by.name}
+        </div>
+
+        <div class="transaction-amount">
+            ${formatAmount(
+        totalAmount,
+        first.currency
+    )}
+        </div>
+
+        <div class="transaction-expand">
+            ›
+        </div>
+
+        <div class="transaction-details">
+
+            ${transactions.map(transaction => `
+                <div class="operation-transaction">
+
+                    <div class="transaction-details">
+
+                        <div class="transaction-detail">
+                            <span>Paid to</span>
+                            <span>${transaction.paid_to.name}</span>
+                        </div>
+
+                        <div class="transaction-detail">
+                            <span>Amount</span>
+                            <span>
+                                ${formatAmount(
+        transaction.amount,
+        transaction.currency
+    )}
+                            </span>
+                        </div>
+
+                        <div class="transaction-actions">
+                            ${transaction.deleted
+            ? `
+                                    <button
+                                        class="button secondary"
+                                        type="button"
+                                        data-operation-action="restore"
+                                        data-transaction-id="${transaction.id}"
+                                    >
+                                        Restore
+                                    </button>
+                                `
+            : `
+                                    <button
+                                        class="button secondary"
+                                        type="button"
+                                        data-operation-action="edit"
+                                        data-transaction-id="${transaction.id}"
+                                    >
+                                        Edit
+                                    </button>
+
+                                    <button
+                                        class="button secondary"
+                                        type="button"
+                                        data-operation-action="delete"
+                                        data-transaction-id="${transaction.id}"
+                                    >
+                                        Delete
+                                    </button>
+                                `
+        }
+                        </div>
+
+                    </div>
+
+                </div>
+            `).join("")}
+
+            <div class="transaction-actions operation-actions">
+                ${transactions.every(transaction => transaction.deleted)
+            ? `
+                    <button class="button"
+                            type="button"
+                            data-operation-action="restore-operation"
+                            data-operation-id="${first.operation_id}">
+                        Restore operation
+                    </button>
+                `
+            : `
+                    <button class="button danger"
+                            type="button"
+                            data-operation-action="delete-operation"
+                            data-operation-id="${first.operation_id}">
+                        Delete operation
+                    </button>
+                `
+        }
+                    Delete operation
+                </button>
+            </div>
+
+        </div>
+    `;
+
+    element.addEventListener("click", async event => {
+
+        const button = event.target.closest(
+            "[data-operation-action], [data-action]"
+        );
+
+        if (!button) {
+            return;
+        }
+
+        event.stopPropagation();
+
+        const action =
+            button.dataset.operationAction ||
+            button.dataset.action;
+
+        if (action === "delete-operation") {
+            const confirmed = confirm(
+                "Delete all transactions in this operation?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            const operationId =
+                Number(button.dataset.operationId);
+
+            try {
+                await deleteOperation(operationId);
+                await initializeTransactionPage();
+            } catch (error) {
+                console.error(error);
+
+                alert(
+                    error.message ||
+                    "Failed to delete operation."
+                );
+            }
+
+            return;
+        }
+        if (action === "restore-operation") {
+            const operationId =
+                Number(button.dataset.operationId);
+
+            try {
+                await restoreOperation(operationId);
+                await initializeTransactionPage();
+            } catch (error) {
+                console.error(error);
+
+                alert(
+                    error.message ||
+                    "Failed to restore operation."
+                );
+            }
+
+            return;
+        }
+
+        const transactionId =
+            Number(button.dataset.transactionId);
+
+        const transaction =
+            transactions.find(
+                item => item.id === transactionId
+            );
+
+        if (!transaction) {
+            return;
+        }
+
+        const operationTransaction =
+            button.closest(".operation-transaction");
+
+        try {
+            await handleTransactionAction(
+                operationTransaction,
+                transaction,
+                action,
+                { refreshPage: true }
+            );
+        } catch (error) {
+            console.error(error);
+
+            alert(
+                error.message ||
+                "Failed to modify transaction."
+            );
+        }
+    });
+
+    return element;
+}
+
 function renderTransactions(transactionTable, transactions) {
     const header = transactionTable.querySelector(
         ".transaction-table-header"
@@ -331,7 +754,121 @@ function showTransactionError(transactionTable) {
     `;
 }
 
+async function handleTransactionAction(
+    element,
+    transaction,
+    action,
+    options = {}
+) {
+    const { refreshPage = false } = options;
+
+    if (action === "delete") {
+        await deleteTransaction(transaction.id);
+        await initializeTransactionPage();
+        return;
+    }
+
+    if (action === "restore") {
+        await restoreTransaction(transaction.id);
+        await initializeTransactionPage();
+        return;
+    }
+
+    if (action === "edit") {
+        await openTransactionEditor(
+            element,
+            transaction
+        );
+        return;
+    }
+
+    if (action === "cancel-edit") {
+        if (refreshPage) {
+            await initializeTransactionPage();
+            return;
+        }
+
+        element.classList.remove("editing");
+
+        const refreshedElement =
+            createTransactionElement(transaction);
+
+        element.replaceWith(refreshedElement);
+        return;
+    }
+
+    if (action === "save") {
+        const amount =
+            element.querySelector(
+                '[data-edit="amount"]'
+            ).value;
+
+        const currency =
+            element.querySelector(
+                '[data-edit="currency"]'
+            ).value;
+
+        const description =
+            element.querySelector(
+                '[data-edit="description"]'
+            ).value;
+
+        const sourceAccount =
+            element.querySelector(
+                '[data-edit="source-account"]'
+            ).value;
+
+        const beneficiaryAccount =
+            element.querySelector(
+                '[data-edit="beneficiary-account"]'
+            ).value;
+
+        await updateTransaction(
+            transaction.id,
+            {
+                amount: Number(amount),
+                currency: currency,
+                description: description || null,
+                source_acc_id: sourceAccount
+                    ? Number(sourceAccount)
+                    : null,
+                beneficiary_acc_id: beneficiaryAccount
+                    ? Number(beneficiaryAccount)
+                    : null
+            }
+        );
+
+        if (refreshPage) {
+            await initializeTransactionPage();
+            return;
+        }
+
+        const context =
+            getTransactionContext();
+
+        const refreshedTransactions =
+            await fetchTransactions(context);
+
+        const updatedTransaction =
+            refreshedTransactions.find(
+                item => item.id === transaction.id
+            );
+
+        if (updatedTransaction) {
+            const refreshedElement =
+                createTransactionElement(
+                    updatedTransaction
+                );
+
+            element.replaceWith(
+                refreshedElement
+            );
+        }
+    }
+}
+
 function createTransactionElement(transaction) {
+
     const element = document.createElement("div");
 
     element.className = "transaction";
@@ -410,60 +947,62 @@ function createTransactionElement(transaction) {
 
             ${transaction.source_account
             ? `
-                        <div class="transaction-detail">
-                            <span>Source account</span>
-                            <span>${transaction.source_account.name}</span>
-                        </div>
-                    `
+                    <div class="transaction-detail">
+                        <span>Source account</span>
+                        <span>${transaction.source_account.name}</span>
+                    </div>
+                `
             : ""
         }
 
             ${transaction.beneficiary_account
             ? `
-                        <div class="transaction-detail">
-                            <span>Beneficiary account</span>
-                            <span>${transaction.beneficiary_account.name}</span>
-                        </div>
-                    `
+                    <div class="transaction-detail">
+                        <span>Beneficiary account</span>
+                        <span>${transaction.beneficiary_account.name}</span>
+                    </div>
+                `
             : ""
         }
 
             <div class="transaction-detail">
                 <span>Amount</span>
-                <span>${formatAmount(
+                <span>
+                    ${formatAmount(
             transaction.amount,
             transaction.currency
-        )}</span>
+        )}
+                </span>
             </div>
 
             <div class="transaction-actions">
                 ${transaction.deleted
             ? `
-                            <button
-                                class="button secondary"
-                                type="button"
-                                data-action="restore"
-                            >
-                                Restore
-                            </button>
-                        `
+                        <button
+                            class="button secondary"
+                            type="button"
+                            data-action="restore"
+                        >
+                            Restore
+                        </button>
+                    `
             : `
-                            <button
-                                class="button secondary"
-                                type="button"
-                                data-action="edit"
-                            >
-                                Edit
-                            </button>
+                        <button
+                            class="button secondary"
+                            type="button"
+                            data-action="edit"
+                        >
+                            Edit
+                        </button>
 
-                            <button
-                                class="button secondary"
-                                type="button"
-                                data-action="delete"
-                            >
-                                Delete
-                            </button>
-                        `
+                        <button
+                            class="button secondary"
+                            type="button"
+                            data-action="delete"
+                        >
+                            Delete
+                        </button>
+                    `
         }
             </div>
 
@@ -471,7 +1010,9 @@ function createTransactionElement(transaction) {
     `;
 
     element.addEventListener("click", async event => {
-        const button = event.target.closest("[data-action]");
+
+        const button =
+            event.target.closest("[data-action]");
 
         if (!button) {
             return;
@@ -479,341 +1020,22 @@ function createTransactionElement(transaction) {
 
         event.stopPropagation();
 
-        const action = button.dataset.action;
+        const action =
+            button.dataset.action;
 
-        /*
-         * Delete
-         */
-        if (action === "delete") {
-            try {
-                await deleteTransaction(transaction.id);
-                await initializeTransactionPage();
-            } catch (error) {
-                console.error(error);
-                alert(error.message || "Failed to delete transaction.");
-            }
-        }
+        try {
+            await handleTransactionAction(
+                element,
+                transaction,
+                action
+            );
+        } catch (error) {
+            console.error(error);
 
-        /*
-         * Restore
-         */
-        if (action === "restore") {
-            try {
-                await restoreTransaction(transaction.id);
-                await initializeTransactionPage();
-            } catch (error) {
-                console.error(error);
-                alert(error.message || "Failed to restore transaction.");
-            }
-        }
-
-        /*
-         * Edit
-         */
-        if (action === "edit") {
-            const details =
-                element.querySelector(".transaction-details");
-
-            details.innerHTML = `
-                <div class="transaction-detail">
-                    <span>Type</span>
-                    <span>${transaction.type}</span>
-                </div>
-
-                <div class="transaction-detail">
-                    <span>Workspace</span>
-                    <span>${transaction.workspace_name}</span>
-                </div>
-
-                <div class="transaction-detail">
-                    <span>Paid by</span>
-                    <span>${transaction.paid_by.name}</span>
-                </div>
-
-                <div class="transaction-detail">
-                    <span>Paid to</span>
-                    <span>${transaction.paid_to.name}</span>
-                </div>
-
-                <div class="transaction-detail">
-                    <span>Source account</span>
-
-                    <select
-                        data-edit="source-account"
-                    >
-                        <option value="">
-                            No account
-                        </option>
-                    </select>
-                </div>
-
-                <div class="transaction-detail">
-                    <span>Beneficiary account</span>
-
-                    <select
-                        data-edit="beneficiary-account"
-                    >
-                        <option value="">
-                            No account
-                        </option>
-                    </select>
-                </div>
-
-                <div class="transaction-detail">
-                    <span>Amount</span>
-
-                    <input
-                        type="number"
-                        step="0.01"
-                        value="${transaction.amount}"
-                        data-edit="amount"
-                    >
-                </div>
-
-                <div class="transaction-detail">
-                    <span>Currency</span>
-
-                    <select data-edit="currency">
-                        <option
-                            value="EUR"
-                            ${transaction.currency === "EUR"
-                    ? "selected"
-                    : ""
-                }
-                        >
-                            EUR
-                        </option>
-
-                        <option
-                            value="USD"
-                            ${transaction.currency === "USD"
-                    ? "selected"
-                    : ""
-                }
-                        >
-                            USD
-                        </option>
-
-                        <option
-                            value="RUB"
-                            ${transaction.currency === "RUB"
-                    ? "selected"
-                    : ""
-                }
-                        >
-                            RUB
-                        </option>
-                    </select>
-                </div>
-
-                <div class="transaction-detail">
-                    <span>Description</span>
-
-                    <input
-                        type="text"
-                        value="${transaction.description ?? ""}"
-                        data-edit="description"
-                    >
-                </div>
-
-                <div class="transaction-actions">
-                    <button
-                        class="button primary"
-                        type="button"
-                        data-action="save"
-                    >
-                        Save
-                    </button>
-
-                    <button
-                        class="button secondary"
-                        type="button"
-                        data-action="cancel-edit"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            `;
-
-            element.classList.add("editing");
-
-            /*
-             * Load source account options
-             */
-            if (transaction.paid_by?.user_id) {
-                const sourceAccountSelect =
-                    details.querySelector(
-                        '[data-edit="source-account"]'
-                    );
-
-                if (sourceAccountSelect) {
-                    try {
-                        const response = await fetch(
-                            `${API_BASE_URL}/accounts/user/${transaction.paid_by.user_id}`
-                        );
-
-                        if (!response.ok) {
-                            throw new Error(
-                                `Failed to load source accounts: ${response.status}`
-                            );
-                        }
-
-                        const accounts =
-                            await response.json();
-
-                        accounts.forEach(account => {
-                            sourceAccountSelect.innerHTML += `
-                                <option
-                                    value="${account.id}"
-                                    ${transaction.source_account?.id ===
-                                    account.id
-                                    ? "selected"
-                                    : ""
-                                }
-                                >
-                                    ${account.name} (${account.currency})
-                                </option>
-                            `;
-                        });
-
-                    } catch (error) {
-                        console.error(error);
-                    }
-                }
-            }
-
-            /*
-             * Load beneficiary account options
-             */
-            if (transaction.paid_to?.user_id) {
-                const beneficiaryAccountSelect =
-                    details.querySelector(
-                        '[data-edit="beneficiary-account"]'
-                    );
-
-                if (beneficiaryAccountSelect) {
-                    try {
-                        const response = await fetch(
-                            `${API_BASE_URL}/accounts/user/${transaction.paid_to.user_id}`
-                        );
-
-                        if (!response.ok) {
-                            throw new Error(
-                                `Failed to load beneficiary accounts: ${response.status}`
-                            );
-                        }
-
-                        const accounts =
-                            await response.json();
-
-                        accounts.forEach(account => {
-                            beneficiaryAccountSelect.innerHTML += `
-                                <option
-                                    value="${account.id}"
-                                    ${transaction.beneficiary_account?.id ===
-                                    account.id
-                                    ? "selected"
-                                    : ""
-                                }
-                                >
-                                    ${account.name} (${account.currency})
-                                </option>
-                            `;
-                        });
-
-                    } catch (error) {
-                        console.error(error);
-                    }
-                }
-            }
-        }
-
-        /*
-         * Cancel edit
-         */
-        if (action === "cancel-edit") {
-            element.classList.remove("editing");
-
-            const refreshedElement =
-                createTransactionElement(transaction);
-
-            element.replaceWith(refreshedElement);
-
-            return;
-        }
-
-        /*
-         * Save edit
-         */
-        if (action === "save") {
-            const amount =
-                element.querySelector(
-                    '[data-edit="amount"]'
-                ).value;
-
-            const currency =
-                element.querySelector(
-                    '[data-edit="currency"]'
-                ).value;
-
-            const description =
-                element.querySelector(
-                    '[data-edit="description"]'
-                ).value;
-
-            const sourceAccount =
-                element.querySelector(
-                    '[data-edit="source-account"]'
-                ).value;
-
-            const beneficiaryAccount =
-                element.querySelector(
-                    '[data-edit="beneficiary-account"]'
-                ).value;
-
-            try {
-                await updateTransaction(
-                    transaction.id,
-                    {
-                        amount: Number(amount),
-                        currency: currency,
-                        description: description || null,
-                        source_acc_id: sourceAccount
-                            ? Number(sourceAccount)
-                            : null,
-                        beneficiary_acc_id: beneficiaryAccount
-                            ? Number(beneficiaryAccount)
-                            : null
-                    }
-                );
-
-                const context = getTransactionContext();
-
-                const refreshedTransactions =
-                    await fetchTransactions(context);
-
-                const updatedTransaction =
-                    refreshedTransactions.find(
-                        item => item.id === transaction.id
-                    );
-
-                if (updatedTransaction) {
-                    const refreshedElement =
-                        createTransactionElement(
-                            updatedTransaction
-                        );
-
-                    element.replaceWith(refreshedElement);
-                }
-
-            } catch (error) {
-                console.error(error);
-
-                alert(
-                    error.message ||
-                    "Failed to update transaction."
-                );
-            }
+            alert(
+                error.message ||
+                "Failed to modify transaction."
+            );
         }
     });
 

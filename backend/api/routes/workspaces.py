@@ -198,6 +198,26 @@ def get_workspace_members(
             "active": member.active
             } for member in workspace.members]
 
+@router.post("/{workspace_id}/debts/simplified/items/{settlement_item_id}/compensate", response_model=MessageResponse)
+def compensate_settlement_item(
+    workspace_id: int,
+    settlement_item_id: int,
+    user_id: int
+):
+    try:
+        serv_ws.compensate_settlement_item(
+            session,
+            settlement_item_id,
+            workspace_id,
+            user_id
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    return {"message": "Settlement item compensated"}
 
 @router.get("/{workspace_id}/debts/simplified", response_model=SettlementResponse | None)
 def get_simplified_workspace_debts(
@@ -298,27 +318,6 @@ def get_workspace(workspace_id: int, user_id: int):
         "description": workspace.description
     }
 
-
-@router.post("/{workspace_id}/debts/simplified/items/{settlement_item_id}/compensate", response_model=MessageResponse)
-def compensate_settlement_item(
-    workspace_id: int,
-    settlement_item_id: int,
-    user_id: int
-):
-    try:
-        serv_ws.compensate_settlement_item(
-            session,
-            settlement_item_id,
-            workspace_id,
-            user_id
-        )
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
-
-    return {"message": "Settlement item compensated"}
 
 
 @router.post("/", response_model=WorkspaceResponse)

@@ -8,7 +8,7 @@ from models.transaction import Transaction
 from models.account import Account
 
 
-import services.workspace_member_services as wms
+import services.workspace_member_services as serv_wsm
 
 
 def get_user(session: Session, user_id: int):
@@ -18,7 +18,6 @@ def get_user(session: Session, user_id: int):
 		raise ValueError("User not found.")
 
 	return user
-
 
 def get_workspaces(session: Session, user_id: int):
 	query = select(Workspace).join(WorkspaceMember).where(
@@ -69,13 +68,62 @@ def get_cumulative_debt(session: Session, user_id: int):
 
 	for member in user.derived_workspace_members:
 		member_debt_usd, member_debt_eur, member_debt_rub = \
-			wms.get_debt(session, member.id)
+			serv_wsm.get_debt(session, member.id)
 
 		debt_usd += member_debt_usd
 		debt_eur += member_debt_eur
 		debt_rub += member_debt_rub
 
 	return debt_usd, debt_eur, debt_rub
+
+def get_workspace_pair_debts(session: Session, user_id: int, workspace_id: int):
+	caller_member = get_workspace_member(session, user_id, workspace_id)
+	if not caller_member:
+		raise ValueError("Workspace member not found.")
+	return serv_wsm.get_all_pair_debts(session, caller_member.id)
+
+def get_cumulative_pair_debt(session: Session, caller_user_id: int, object_user_id: int):
+	caller_user = get_user(session, caller_user_id)
+	object_user = get_user(session, object_user_id)
+
+	debt_usd = 0
+	debt_eur = 0
+	debt_rub = 0
+
+	for wsm in caller_user.derived_workspace_members:
+		for member, (debt_usd_ws,debt_eur_ws,debt_rub_ws) in serv_wsm.get_all_pair_debts(session, wsm.id):
+			if member.user_id == object_user_id:
+					debt_usd += debt_usd_ws
+					debt_eur += debt_eur_ws
+					debt_rub += debt_rub_ws
+
+	return debt_usd, debt_eur, debt_rub 
+
+def get_all_cumulative_pair_debts(
+	session: Session,
+	caller_user_id: int
+):
+	caller_user = get_user(session, caller_user_id)
+
+	cumulative_debts = []
+
+	users = session.scalars(
+		select(User)
+		.where(User.id != caller_user_id)
+	).all()
+
+	for user in users:
+		debt_usd, debt_eur, debt_rub = get_cumulative_pair_debt(
+			session,
+			caller_user_id,
+			user.id
+		)
+
+		cumulative_debts.append(
+			(user, (debt_usd, debt_eur, debt_rub))
+		)
+
+	return cumulative_debts
 
 def get_workspace_member(session: Session, user_id: int, workspace_id: int):
 	query = select(WorkspaceMember).where(

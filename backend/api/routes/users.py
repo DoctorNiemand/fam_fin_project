@@ -30,6 +30,13 @@ class DebtResponse(BaseModel):
     eur: float
     rub: float
 
+class PairDebtResponse(BaseModel):
+    user_id: int
+    workspace_member_id: int | None = None
+    name: str
+    usd: float
+    eur: float
+    rub: float
 
 
 @router.get("/")
@@ -85,6 +92,77 @@ def get_user_debt(user_id: int):
         "eur": debt_eur,
         "rub": debt_rub
     }
+
+@router.get("/{user_id}/workspace_pair_debts", response_model=list[PairDebtResponse])
+def get_workspace_pair_debts(workspace_id: int, user_id: int):
+    try:
+        serv_usr.require_workspace_member(
+            session,
+            user_id,
+            workspace_id
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=403,
+            detail=str(e)
+        )
+
+    try:
+        debts = serv_usr.get_workspace_pair_debts(
+            session,
+            user_id,
+            workspace_id
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+
+    return [
+        {
+            "user_id": member.user_id,
+            "workspace_member_id": member.id,
+            "name": member.user.name,
+            "usd": debt_usd,
+            "eur": debt_eur,
+            "rub": debt_rub
+        }
+        for member, (
+            debt_usd,
+            debt_eur,
+            debt_rub
+        ) in debts
+    ]
+
+@router.get("/{user_id}/cumulative_pair_debts", response_model=list[PairDebtResponse])
+def get_cumulative_pair_debts(user_id: int):
+    try:
+        debts = serv_usr.get_all_cumulative_pair_debts(
+            session,
+            user_id
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+
+    return [
+        {
+            "user_id": user.id,
+            "name": user.name,
+            "usd": debt_usd,
+            "eur": debt_eur,
+            "rub": debt_rub
+        }
+        for user, (
+            debt_usd,
+            debt_eur,
+            debt_rub
+        ) in debts
+    ]
+
 
 @router.get("/{user_id}/workspaces")
 def get_user_workspaces(user_id: int):
